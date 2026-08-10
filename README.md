@@ -5,6 +5,15 @@
 > Course: **CW3551 Data and Information Security** | Batch: **2023–2027** | Sem: **05**  
 > Instructor: **G. Alisha Evangeline, AP/ADS**
 
+## 📚 Documentation Links
+
+Detailed documentation is available in the [`docs/`](./docs) directory:
+
+- 📘 **[Project Overview & Architecture](./docs/overview.md)** — Core workflow and key capabilities.
+- 🛠️ **[Tech Stack & Design System](./docs/tech_stack.md)** — Frontend/backend technologies and styling rules.
+- 🚀 **[Setup & Deployment Guide](./docs/setup_guide.md)** — Step-by-step local, Docker, and Docker Compose deployment.
+- 🗄️ **[Database Architecture](./docs/database_schema.md)** — MySQL schema, DDL scripts, and SQLite fallback mechanics.
+
 ---
 
 ## 📌 Project Overview
