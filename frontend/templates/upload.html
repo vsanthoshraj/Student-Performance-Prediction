@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+{% block title %}Import Student Data — EduSense{% endblock %}
+{% block header_title %}Data Import{% endblock %}
+
+{% block content %}
+<div style="max-width:800px; margin:0 auto; text-align:center;">
+  
+  <div style="margin-bottom:32px;">
+    <h1 style="font-size:32px; font-weight:700; letter-spacing:-0.8px; margin-bottom:8px;">Import student data</h1>
+    <p style="font-size:16px; color:var(--text-secondary);">Upload your Excel sheet to store and analyze academic performance in MySQL.</p>
+  </div>
+
+  <form id="uploadForm" action="{{ url_for('upload') }}" method="POST" enctype="multipart/form-data">
+    <div class="dropzone-container" id="dropzone">
+      <div class="dropzone-icon">
+        <i data-lucide="file-up" style="width:32px; height:32px;"></i>
+      </div>
+      
+      <h3 style="font-size:19px; font-weight:600; margin-bottom:6px;">Drop your Excel file here</h3>
+      <p style="font-size:14px; color:var(--text-secondary); margin-bottom:20px;">or click to select file from your device</p>
+      
+      <input type="file" name="excel_file" id="fileInput" accept=".xlsx" style="display:none;" onchange="handleFileSelect(this)">
+      
+      <button type="button" class="btn-apple btn-primary-apple" onclick="document.getElementById('fileInput').click()">
+        Choose Excel File
+      </button>
+
+      <p style="font-size:12px; color:var(--text-muted); margin-top:20px;">Supported format: <strong>.xlsx</strong></p>
+      <div id="selectedFileName" style="margin-top:14px; font-weight:600; color:var(--color-accent);"></div>
+    </div>
+  </form>
+
+  <div style="display:flex; justify-content:center; align-items:center; gap:20px; margin-top:32px; flex-wrap:wrap;">
+    <a href="{{ url_for('download_template') }}" class="btn-apple btn-secondary-apple">
+      <i data-lucide="download"></i> Download Excel Template
+    </a>
+
+    <button class="btn-apple btn-secondary-apple" onclick="loadSampleData()">
+      <i data-lucide="sparkles"></i> Load 30-Student Demo Dataset
+    </button>
+  </div>
+
+  <div class="card-apple" style="margin-top:40px; text-align:left;">
+    <h3 class="card-title"><i data-lucide="info"></i> Expected Excel Template Structure</h3>
+    <p style="font-size:13px; color:var(--text-secondary); margin-bottom:16px;">
+      Ensure your <strong>.xlsx</strong> file contains headers matching or resembling the following standard columns:
+    </p>
+
+    <div class="table-responsive">
+      <table class="table-apple" style="font-size:13px;">
+        <thead>
+          <tr>
+            <th>Student ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Department</th>
+            <th>Year</th>
+            <th>Attendance</th>
+            <th>Marks</th>
+            <th>Assignment</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>STU1001</td>
+            <td>Arun Kumar</td>
+            <td>arun@university.edu</td>
+            <td>BCA</td>
+            <td>III Year</td>
+            <td>92</td>
+            <td>84</td>
+            <td>90</td>
+          </tr>
+          <tr>
+            <td>STU1002</td>
+            <td>Rahul Sharma</td>
+            <td>rahul@university.edu</td>
+            <td>BCA</td>
+            <td>III Year</td>
+            <td>61</td>
+            <td>42</td>
+            <td>40</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  function handleFileSelect(input) {
+    if (input.files && input.files[0]) {
+      const file = input.files[0];
+      document.getElementById('selectedFileName').innerText = `✓ Selected: ${file.name}`;
+      document.getElementById('uploadForm').submit();
+    }
+  }
+
+  const dropzone = document.getElementById('dropzone');
+  if (dropzone) {
+    ['dragenter', 'dragover'].forEach(eventName => {
+      dropzone.addEventListener(eventName, e => {
+        e.preventDefault();
+        dropzone.classList.add('drag-over');
+      }, false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+      dropzone.addEventListener(eventName, e => {
+        e.preventDefault();
+        dropzone.classList.remove('drag-over');
+      }, false);
+    });
+
+    dropzone.addEventListener('drop', e => {
+      const dt = e.dataTransfer;
+      const files = dt.files;
+      if (files && files.length > 0) {
+        document.getElementById('fileInput').files = files;
+        handleFileSelect(document.getElementById('fileInput'));
+      }
+    });
+  }
+</script>
+{% endblock %}

@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+{% block title %}Settings — EduSense{% endblock %}
+{% block header_title %}System Settings{% endblock %}
+
+{% block content %}
+<div style="max-width:800px; margin:0 auto;">
+
+  <form method="POST" action="{{ url_for('settings') }}">
+    
+    <!-- Section 1: Risk Rule Thresholds -->
+    <div class="card-apple" style="margin-bottom:24px;">
+      <h3 class="chart-title" style="margin-bottom:6px;"><i data-lucide="sliders"></i> Rule-Based Risk Thresholds</h3>
+      <p style="font-size:13px; color:var(--text-secondary); margin-bottom:20px;">
+        Adjust the cut-off parameters used by the early warning rule engine.
+      </p>
+
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:16px;">
+        <div class="form-group">
+          <label class="form-label">Attendance Threshold (%)</label>
+          <input type="number" name="attendance_threshold" class="form-input" value="{{ settings.attendance_threshold }}" min="0" max="100" required>
+          <span style="font-size:11px; color:var(--text-muted); margin-top:4px; display:block;">Flag if below this %</span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Marks Threshold (Score / 100)</label>
+          <input type="number" name="marks_threshold" class="form-input" value="{{ settings.marks_threshold }}" min="0" max="100" required>
+          <span style="font-size:11px; color:var(--text-muted); margin-top:4px; display:block;">Flag if below this score</span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Assignment Threshold (%)</label>
+          <input type="number" name="assignment_threshold" class="form-input" value="{{ settings.assignment_threshold }}" min="0" max="100" required>
+          <span style="font-size:11px; color:var(--text-muted); margin-top:4px; display:block;">Flag if below this %</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 2: Gemini AI Integration -->
+    <div class="card-apple" style="margin-bottom:24px;">
+      <h3 class="chart-title" style="margin-bottom:6px;"><i data-lucide="sparkles"></i> Google Gemini API Integration</h3>
+      <p style="font-size:13px; color:var(--text-secondary); margin-bottom:20px;">
+        Configure your Google Gemini API Key for natural language dataset queries. (If left empty, EduSense automatically uses its built-in analytical engine).
+      </p>
+
+      <div class="form-group">
+        <label class="form-label">Gemini API Key</label>
+        <div style="display:flex; gap:10px;">
+          <input type="password" id="geminiKey" name="gemini_api_key" class="form-input" value="{{ settings.gemini_api_key }}" placeholder="AIzaSy...">
+          <button type="button" class="btn-apple btn-secondary-apple" onclick="togglePassword('geminiKey')">Show</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 3: SMTP Email Configuration -->
+    <div class="card-apple" style="margin-bottom:28px;">
+      <h3 class="chart-title" style="margin-bottom:6px;"><i data-lucide="mail"></i> SMTP Email Server Configuration</h3>
+      <p style="font-size:13px; color:var(--text-secondary); margin-bottom:20px;">
+        Configure SMTP credentials for sending student alert emails. (If left unconfigured, alerts run in simulated preview mode).
+      </p>
+
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:16px;">
+        <div class="form-group">
+          <label class="form-label">SMTP Server Host</label>
+          <input type="text" name="smtp_server" class="form-input" value="{{ settings.smtp_server }}" placeholder="smtp.gmail.com">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">SMTP Port</label>
+          <input type="number" name="smtp_port" class="form-input" value="{{ settings.smtp_port }}" placeholder="587">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Sender Email Address</label>
+          <input type="email" name="sender_email" class="form-input" value="{{ settings.sender_email }}" placeholder="edusense.alerts@university.edu">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">SMTP Username</label>
+          <input type="text" name="smtp_username" class="form-input" value="{{ settings.smtp_username }}" placeholder="your_email@gmail.com">
+        </div>
+
+        <div class="form-group" style="grid-column: span 2;">
+          <label class="form-label">SMTP Password / App Password</label>
+          <div style="display:flex; gap:10px;">
+            <input type="password" id="smtpPass" name="smtp_password" class="form-input" value="{{ settings.smtp_password }}" placeholder="••••••••••••••••">
+            <button type="button" class="btn-apple btn-secondary-apple" onclick="togglePassword('smtpPass')">Show</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Save Controls -->
+    <div style="display:flex; justify-content:flex-end; gap:12px;">
+      <button type="submit" class="btn-apple btn-primary-apple" style="padding:12px 28px;">
+        <i data-lucide="save"></i> Save Settings
+      </button>
+    </div>
+
+  </form>
+
+</div>
+
+<script>
+  function togglePassword(inputId) {
+    const input = document.getElementById(inputId);
+    if (input) {
+      input.type = input.type === 'password' ? 'text' : 'password';
+    }
+  }
+</script>
+{% endblock %}

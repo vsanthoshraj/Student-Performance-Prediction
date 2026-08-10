@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}EduSense — AI Academic Intelligence{% endblock %}</title>
+  
+  <!-- Apple Font Stack & Styles -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  
+  <!-- Chart.js & Lucide Icons -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+  <div class="app-container">
+    
+    <!-- Apple Sidebar Navigation -->
+    <aside class="app-sidebar">
+      <div class="brand-header">
+        <div class="brand-icon">✦</div>
+        <div>
+          <h1 class="brand-title" style="font-size:16px;">JACSI EduSense</h1>
+          <p class="brand-subtitle" style="font-size:10px;">Dept of AI & Data Science</p>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <a href="{{ url_for('dashboard') }}" class="nav-item {% if active_page == 'dashboard' %}active{% endif %}">
+          <i data-lucide="layout-dashboard"></i> Overview
+        </a>
+        <a href="{{ url_for('students') }}" class="nav-item {% if active_page == 'students' %}active{% endif %}">
+          <i data-lucide="users"></i> Students (57)
+        </a>
+        <a href="{{ url_for('analytics') }}" class="nav-item {% if active_page == 'analytics' %}active{% endif %}">
+          <i data-lucide="bar-chart-3"></i> Analytics
+        </a>
+        <a href="{{ url_for('alerts') }}" class="nav-item {% if active_page == 'alerts' %}active{% endif %}">
+          <i data-lucide="mail-warning"></i> Email Alerts
+        </a>
+        <a href="{{ url_for('upload') }}" class="nav-item {% if active_page == 'upload' %}active{% endif %}">
+          <i data-lucide="file-up"></i> Upload Excel
+        </a>
+        <a href="{{ url_for('settings') }}" class="nav-item {% if active_page == 'settings' %}active{% endif %}">
+          <i data-lucide="settings"></i> Settings
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="file-status-badge">
+          <i data-lucide="database" class="file-status-icon"></i>
+          <div style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+            <span style="font-weight:600; color:var(--text-primary); display:block; font-size:12px;">
+              MySQL Database
+            </span>
+            <span style="font-size:11px; color:var(--text-muted);">
+              JACSI College (III ADS)
+            </span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Viewport -->
+    <main class="main-viewport">
+      
+      <!-- Top Navigation Bar -->
+      <header class="top-navbar">
+        <div style="display:flex; align-items:center; gap:16px;">
+          <button class="mobile-menu-btn" id="mobileMenuBtn">
+            <i data-lucide="menu"></i>
+          </button>
+          <span class="page-title">{% block header_title %}Academic Workspace{% endblock %}</span>
+        </div>
+
+        <div class="user-profile-menu">
+          <span style="font-size:13px; color:var(--text-secondary); font-weight:500;">
+            G. Alisha Evangeline, AP/ADS
+          </span>
+          <a href="{{ url_for('logout') }}" class="btn-signout">Sign Out</a>
+        </div>
+      </header>
+
+
+      <!-- Flash Messages -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <div class="toast-container">
+            {% for category, message in messages %}
+              <div class="toast toast-{{ 'success' if category == 'success' else ('error' if category == 'error' else 'info') }}">
+                {{ message }}
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+
+      <!-- Content Area -->
+      <div class="content-body">
+        {% block content %}{% endblock %}
+      </div>
+    </main>
+
+  </div>
+
+  <!-- Student Detail Modal Skeleton -->
+  <div class="modal-overlay" id="studentDetailModal">
+    <div class="modal-card">
+      <button class="modal-close" onclick="closeStudentModal()">&times;</button>
+      <div id="modalContent"></div>
+    </div>
+  </div>
+
+  <!-- Floating AI Assistant Drawer Trigger & Window -->
+  <div class="chatbot-trigger" id="chatbotTrigger">
+    <span style="font-size:16px;">✦</span> Ask EduSense
+  </div>
+
+  <div class="chatbot-drawer" id="chatbotDrawer">
+    <div class="chat-header">
+      <div>
+        <h3 style="font-size:15px; font-weight:700; margin:0;">✦ EduSense AI</h3>
+        <p style="font-size:11px; color:var(--text-secondary); margin:0;">Academic Data Assistant</p>
+      </div>
+      <button class="modal-close" id="chatbotClose" style="position:static; width:28px; height:28px;">&times;</button>
+    </div>
+
+    <div class="chip-group">
+      <span class="chip">Which students are at risk?</span>
+      <span class="chip">Who scored highest marks?</span>
+      <span class="chip">Show low attendance</span>
+      <span class="chip">Class summary</span>
+    </div>
+
+    <div class="chat-messages" id="chatMessages">
+      <div class="msg-bubble msg-ai">
+        Hello! I'm <strong>EduSense AI</strong>. Ask me anything about your loaded student performance dataset in MySQL.
+      </div>
+    </div>
+
+    <div class="chat-input-area">
+      <input type="text" class="chat-input" id="chatInput" placeholder="Ask about student performance dataset...">
+      <button class="btn-apple btn-primary-apple" id="chatSendBtn" style="padding:8px 14px; border-radius:18px;">
+        <i data-lucide="send" style="width:16px; height:16px;"></i>
+      </button>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/chatbot.js') }}"></script>
+</body>
+</html>

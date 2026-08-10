@@ -1,0 +1,205 @@
+{% extends "base.html" %}
+
+{% block title %}Overview — EduSense{% endblock %}
+{% block header_title %}Academic Overview{% endblock %}
+
+{% block content %}
+{% if not has_data %}
+
+<!-- Empty State -->
+<div style="text-align:center; padding:80px 20px; max-width:600px; margin:0 auto;">
+  <div style="width:72px; height:72px; background:var(--color-accent-bg); color:var(--color-accent); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 24px;">
+    <i data-lucide="layout-grid" style="width:36px; height:36px;"></i>
+  </div>
+  <h2 style="font-size:28px; font-weight:700; margin-bottom:8px;">Your academic workspace is ready.</h2>
+  <p style="font-size:15px; color:var(--text-secondary); margin-bottom:28px;">
+    Upload your student Excel file to begin monitoring academic risk and generating Gemini AI insights.
+  </p>
+  <div style="display:flex; justify-content:center; gap:14px;">
+    <a href="{{ url_for('upload') }}" class="btn-apple btn-primary-apple">
+      <i data-lucide="file-up"></i> Import Student Data
+    </a>
+    <button onclick="loadSampleData()" class="btn-apple btn-secondary-apple">
+      <i data-lucide="sparkles"></i> Load Demo Sample
+    </button>
+  </div>
+</div>
+
+{% else %}
+
+<!-- Dashboard Header Banner -->
+<div class="card-apple" style="margin-bottom:28px; background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(240,244,248,0.95)); border: 1px solid rgba(0, 113, 227, 0.15);">
+  <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:16px;">
+    <div>
+      <span style="font-size:11px; font-weight:700; color:var(--color-accent); text-transform:uppercase; letter-spacing:0.8px;">
+        Jayaraj Annapackiam C. S. I. College of Engineering
+      </span>
+      <h1 style="font-size:24px; font-weight:700; letter-spacing:-0.5px; margin:4px 0 6px 0; color:var(--text-primary);">
+        Department of Artificial Intelligence and Data Science
+      </h1>
+      <p style="font-size:14px; color:var(--text-secondary); margin-bottom:12px;">
+        <strong>Course:</strong> CW3551 Data and Information Security &nbsp;|&nbsp; 
+        <strong>Class:</strong> III ADS &nbsp;|&nbsp; 
+        <strong>Sem:</strong> 05 &nbsp;|&nbsp; 
+        <strong>Batch:</strong> 2023-2027 &nbsp;|&nbsp; 
+        <strong>Academic Year:</strong> 2025–26 (Odd Sem)
+      </p>
+      <div style="display:flex; gap:16px; font-size:13px; color:var(--text-muted); flex-wrap:wrap;">
+        <span><i data-lucide="user-check" style="width:14px; height:14px; vertical-align:middle;"></i> Instructor: <strong>G. Alisha Evangeline, AP/ADS</strong></span>
+        <span><i data-lucide="users" style="width:14px; height:14px; vertical-align:middle;"></i> Class Strength: <strong>57 Students</strong></span>
+        <span><i data-lucide="map-pin" style="width:14px; height:14px; vertical-align:middle;"></i> Nazareth - 628 617</span>
+      </div>
+    </div>
+
+    <div style="background:var(--bg-card); padding:10px 18px; border-radius:var(--border-radius-md); border:1px solid var(--border-light); font-size:13px; color:var(--text-secondary); display:flex; align-items:center; gap:10px; box-shadow:var(--shadow-sm);">
+      <i data-lucide="database" style="color:var(--color-good); width:18px; height:18px;"></i>
+      <div>
+        <strong style="color:var(--text-primary); display:block;">MySQL Database</strong>
+        <span style="font-size:11px; color:var(--text-muted);">{{ stats.total }} Real Students Active</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- KPI Cards Grid -->
+<div class="kpi-grid">
+  
+  <div class="card-apple kpi-card kpi-total">
+    <div class="card-title">
+      <span>Total Students</span>
+      <i data-lucide="users" style="width:18px; height:18px; color:var(--color-accent);"></i>
+    </div>
+    <div class="card-value">{{ stats.total }}</div>
+    <div class="card-subtext">CW3551 · Batch 2023–2027</div>
+  </div>
+
+  <div class="card-apple kpi-card kpi-good">
+    <div class="card-title">
+      <span>Good</span>
+      <i data-lucide="check-circle" style="width:18px; height:18px; color:var(--color-good);"></i>
+    </div>
+    <div class="card-value" style="color:var(--color-good);">{{ stats.good }}</div>
+    <div class="card-subtext">Meeting performance targets</div>
+  </div>
+
+  <div class="card-apple kpi-card kpi-warning">
+    <div class="card-title">
+      <span>Warning</span>
+      <i data-lucide="alert-triangle" style="width:18px; height:18px; color:var(--color-warning);"></i>
+    </div>
+    <div class="card-value" style="color:var(--color-warning);">{{ stats.warning }}</div>
+    <div class="card-subtext">Needs attention</div>
+  </div>
+
+  <div class="card-apple kpi-card kpi-risk">
+    <div class="card-title">
+      <span>At Risk</span>
+      <i data-lucide="alert-circle" style="width:18px; height:18px; color:var(--color-risk);"></i>
+    </div>
+    <div class="card-value" style="color:var(--color-risk);">{{ stats.at_risk }}</div>
+    <div class="card-subtext">Immediate intervention required</div>
+  </div>
+
+</div>
+
+<!-- Charts Section -->
+<div class="charts-grid">
+  
+  <!-- Donut Chart: Performance Distribution -->
+  <div class="card-apple">
+    <div class="chart-header">
+      <h3 class="chart-title">Performance Distribution</h3>
+    </div>
+    <div class="chart-container">
+      <canvas id="performanceChart" 
+              data-good="{{ stats.good }}" 
+              data-warning="{{ stats.warning }}" 
+              data-risk="{{ stats.at_risk }}">
+      </canvas>
+    </div>
+  </div>
+
+  <!-- Bar Chart: Attendance Overview -->
+  <div class="card-apple">
+    <div class="chart-header">
+      <h3 class="chart-title">Attendance Distribution</h3>
+      <span style="font-size:12px; color:var(--text-muted);">Class Average: <strong>{{ stats.avg_attendance }}%</strong></span>
+    </div>
+    <div class="chart-container">
+      <canvas id="attendanceChart" data-counts='{{ stats.attendance_counts | tojson }}'></canvas>
+    </div>
+  </div>
+
+</div>
+
+<!-- High Priority At-Risk Students Quick Table -->
+<div class="card-apple">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+    <div>
+      <h3 class="chart-title">Immediate Attention Required</h3>
+      <p style="font-size:13px; color:var(--text-secondary);">Students flagged by rule-based risk detection system</p>
+    </div>
+    <a href="{{ url_for('alerts') }}" class="btn-apple btn-secondary-apple">
+      <i data-lucide="mail"></i> Send All Alerts
+    </a>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table-apple">
+      <thead>
+        <tr>
+          <th>Student</th>
+          <th>Department</th>
+          <th>Attendance</th>
+          <th>Marks</th>
+          <th>Assignment</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% set risk_students = students | selectattr('Status', 'equalto', 'At Risk') | list %}
+        {% for s in risk_students[:6] %}
+        <tr>
+          <td>
+            <strong>{{ s.Name }}</strong>
+            <span style="display:block; font-size:11px; color:var(--text-muted);">{{ s['Student ID'] }}</span>
+          </td>
+          <td>{{ s.Department }}</td>
+          <td>
+            <span style="font-weight:600; color:{% if s.Attendance < 75 %}var(--color-risk){% else %}var(--text-primary){% endif %};">
+              {{ s.Attendance }}%
+            </span>
+          </td>
+          <td>
+            <span style="font-weight:600; color:{% if s.Marks < 50 %}var(--color-risk){% else %}var(--text-primary){% endif %};">
+              {{ s.Marks }}
+            </span>
+          </td>
+          <td>{{ s.Assignment }}%</td>
+          <td>
+            <span class="badge-status badge-risk">
+              <span class="dot"></span> At Risk
+            </span>
+          </td>
+          <td>
+            <button class="btn-apple btn-secondary-apple" style="padding:4px 10px; font-size:12px;" onclick="openStudentModal('{{ s['Student ID'] }}')">
+              View
+            </button>
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="7" style="text-align:center; padding:30px; color:var(--text-muted);">
+            No students currently flagged as At Risk!
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endif %}
+{% endblock %}

@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}Analytics & Insights — EduSense{% endblock %}
+{% block header_title %}Academic Analytics{% endblock %}
+
+{% block content %}
+<!-- Metrics Summary Cards -->
+<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:20px; margin-bottom:28px;">
+  
+  <div class="card-apple">
+    <span style="font-size:13px; font-weight:600; color:var(--text-secondary);">Class Avg Attendance</span>
+    <div style="font-size:32px; font-weight:700; color:var(--color-accent); margin-top:4px;">{{ stats.avg_attendance }}%</div>
+    <p style="font-size:12px; color:var(--text-muted); margin-top:4px;">Across {{ stats.total }} students</p>
+  </div>
+
+  <div class="card-apple">
+    <span style="font-size:13px; font-weight:600; color:var(--text-secondary);">Class Avg Marks</span>
+    <div style="font-size:32px; font-weight:700; color:var(--color-accent); margin-top:4px;">{{ stats.avg_marks }} / 100</div>
+    <p style="font-size:12px; color:var(--text-muted); margin-top:4px;">Across all examinations</p>
+  </div>
+
+  <div class="card-apple">
+    <span style="font-size:13px; font-weight:600; color:var(--text-secondary);">Class Avg Assignment</span>
+    <div style="font-size:32px; font-weight:700; color:var(--color-accent); margin-top:4px;">{{ stats.avg_assignment }}%</div>
+    <p style="font-size:12px; color:var(--text-muted); margin-top:4px;">Submission completion</p>
+  </div>
+
+</div>
+
+<!-- Marks Distribution Chart -->
+<div class="card-apple" style="margin-bottom:28px;">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+    <div>
+      <h3 class="chart-title">Academic Marks Score Ranges</h3>
+      <p style="font-size:13px; color:var(--text-secondary);">Distribution of student marks across performance brackets</p>
+    </div>
+  </div>
+
+  <div class="chart-container" style="height:300px;">
+    <canvas id="marksChart" data-counts='{{ stats.marks_counts | tojson }}'></canvas>
+  </div>
+</div>
+
+<!-- Department Risk Matrix -->
+<div class="card-apple">
+  <h3 class="chart-title" style="margin-bottom:16px;">Department Risk Breakdown</h3>
+  
+  <div class="table-responsive">
+    <table class="table-apple">
+      <thead>
+        <tr>
+          <th>Department</th>
+          <th>Total Students</th>
+          <th>Good Standing</th>
+          <th>Warning</th>
+          <th>At Risk</th>
+          <th>Risk Rate</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for dept, dstat in dept_stats.items() %}
+        {% set risk_pct = (dstat.at_risk / dstat.count * 100) if dstat.count > 0 else 0 %}
+        <tr>
+          <td><strong>{{ dept }}</strong></td>
+          <td>{{ dstat.count }}</td>
+          <td><span style="color:var(--color-good); font-weight:600;">{{ dstat.good }}</span></td>
+          <td><span style="color:var(--color-warning); font-weight:600;">{{ dstat.warning }}</span></td>
+          <td><span style="color:var(--color-risk); font-weight:600;">{{ dstat.at_risk }}</span></td>
+          <td>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span style="font-weight:600; color:{% if risk_pct > 30 %}var(--color-risk){% else %}var(--text-primary){% endif %};">
+                {{ risk_pct | round(1) }}%
+              </span>
+            </div>
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="6" style="text-align:center; padding:30px; color:var(--text-muted);">
+            No department data available.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

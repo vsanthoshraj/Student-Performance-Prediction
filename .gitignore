@@ -1,0 +1,21 @@
+# Virtual environment
+venv/
+__pycache__/
+*.pyc
+
+# Environment files (contains secrets)
+.env
+
+# SQLite fallback database
+backend/data/edusense_fallback.db
+
+# Uploaded files
+backend/uploads/*.xlsx
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/

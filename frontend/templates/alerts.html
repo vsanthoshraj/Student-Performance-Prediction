@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}Email Alerts — EduSense{% endblock %}
+{% block header_title %}Academic Alert Dispatch{% endblock %}
+
+{% block content %}
+<div class="card-apple" style="margin-bottom:28px;">
+  <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
+    <div>
+      <h2 style="font-size:24px; font-weight:700; margin-bottom:4px;">Academic Performance Alerts</h2>
+      <p style="font-size:14px; color:var(--text-secondary);">
+        <strong>{{ students|length }} students</strong> currently require intervention notifications.
+      </p>
+    </div>
+
+    <button class="btn-apple btn-primary-apple" onclick="sendBulkAlerts()">
+      <i data-lucide="send"></i> Send All Alerts ({{ students|length }})
+    </button>
+  </div>
+</div>
+
+<div class="card-apple">
+  <div class="table-responsive">
+    <table class="table-apple">
+      <thead>
+        <tr>
+          <th>Student Name</th>
+          <th>Risk Status</th>
+          <th>Email Address</th>
+          <th>Key Deficits</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for s in students %}
+        {% set status_class = 'badge-risk' if s.Status == 'At Risk' else 'badge-warning' %}
+        <tr>
+          <td>
+            <strong style="color:var(--text-primary);">{{ s.Name }}</strong>
+            <span style="display:block; font-size:11px; color:var(--text-muted);">{{ s['Student ID'] }} • {{ s.Department }}</span>
+          </td>
+          <td>
+            <span class="badge-status {{ status_class }}">
+              <span class="dot"></span> {{ s.Status }}
+            </span>
+          </td>
+          <td>{{ s.Email }}</td>
+          <td>
+            <span style="font-size:12px; color:var(--text-secondary);">
+              Att: {{ s.Attendance }}% | Marks: {{ s.Marks }} | Ass: {{ s.Assignment }}%
+            </span>
+          </td>
+          <td>
+            <button class="btn-apple btn-secondary-apple" style="padding:5px 12px; font-size:12px;" onclick="sendIndividualEmail('{{ s['Student ID'] }}')">
+              Send Alert
+            </button>
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="5" style="text-align:center; padding:40px; color:var(--text-muted);">
+            ✓ All clear! No students currently require academic alert notifications.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

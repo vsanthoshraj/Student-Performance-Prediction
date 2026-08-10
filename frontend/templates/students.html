@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}Students Directory — EduSense{% endblock %}
+{% block header_title %}Student Directory{% endblock %}
+
+{% block content %}
+<div class="card-apple" style="margin-bottom:24px;">
+  <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px; margin-bottom:20px;">
+    <div>
+      <h2 style="font-size:20px; font-weight:700; margin-bottom:4px;">Students Registry</h2>
+      <p style="font-size:13px; color:var(--text-secondary);">CW3551 Data and Information Security — {{ students|length }} students (Batch 2023–2027)</p>
+    </div>
+
+    <!-- Filter & Search Controls -->
+    <div style="display:flex; gap:12px; flex-wrap:wrap;">
+      <input type="text" id="studentSearch" placeholder="Search student name or ID..." class="form-input" style="width:240px; padding:8px 14px; font-size:13px;">
+
+      <select id="statusFilter" class="form-input" style="width:140px; padding:8px 14px; font-size:13px;">
+        <option value="all">All Statuses</option>
+        <option value="good">Good</option>
+        <option value="warning">Warning</option>
+        <option value="at risk">At Risk</option>
+      </select>
+
+      <select id="deptFilter" class="form-input" style="width:160px; padding:8px 14px; font-size:13px;">
+        <option value="all">All Departments</option>
+        {% for dept in departments %}
+          <option value="{{ dept|lower }}">{{ dept }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table-apple">
+      <thead>
+        <tr>
+          <th>Student Name & ID</th>
+          <th>Department</th>
+          <th>Batch</th>
+          <th>Attendance</th>
+          <th>Marks</th>
+          <th>Assignment</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for s in students %}
+        {% set status_class = 'badge-good' if s.Status == 'Good' else ('badge-warning' if s.Status == 'Warning' else 'badge-risk') %}
+        <tr class="student-row" 
+            data-name="{{ s.Name }}" 
+            data-id="{{ s['Student ID'] }}" 
+            data-status="{{ s.Status }}" 
+            data-dept="{{ s.Department }}">
+          <td>
+            <strong style="color:var(--text-primary);">{{ s.Name }}</strong>
+            <span style="display:block; font-size:12px; color:var(--text-muted);">{{ s['Student ID'] }} • {{ s.Email }}</span>
+          </td>
+          <td>{{ s.Department }}</td>
+          <td>{{ s.Year }}</td>
+          <td>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span style="font-weight:600; min-width:32px; color:{% if s.Attendance < 75 %}var(--color-risk){% else %}var(--text-primary){% endif %};">
+                {{ s.Attendance }}%
+              </span>
+              <div style="width:60px; height:4px; background:rgba(0,0,0,0.06); border-radius:2px; overflow:hidden;">
+                <div style="width:{{ s.Attendance }}%; height:100%; background:{% if s.Attendance < 75 %}var(--color-risk){% else %}var(--color-good){% endif %};"></div>
+              </div>
+            </div>
+          </td>
+          <td>
+            <span style="font-weight:600; color:{% if s.Marks < 50 %}var(--color-risk){% else %}var(--text-primary){% endif %};">
+              {{ s.Marks }}
+            </span>
+          </td>
+          <td>{{ s.Assignment }}%</td>
+          <td>
+            <span class="badge-status {{ status_class }}">
+              <span class="dot"></span> {{ s.Status }}
+            </span>
+          </td>
+          <td>
+            <button class="btn-apple btn-secondary-apple" style="padding:5px 12px; font-size:12px;" onclick="openStudentModal('{{ s['Student ID'] }}')">
+              View
+            </button>
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="8" style="text-align:center; padding:40px; color:var(--text-muted);">
+            No student records available. Upload an Excel spreadsheet to populate the database.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
