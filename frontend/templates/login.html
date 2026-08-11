@@ -3,11 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sign In — EduSense</title>
+  <title>Sign In — EduSense AI</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <script src="https://unpkg.com/lucide@latest"></script>
   <style>
     body {
-      background: radial-gradient(circle at 50% 20%, rgba(0, 113, 227, 0.08) 0%, rgba(245, 245, 247, 1) 70%);
+      background: radial-gradient(at 50% 30%, rgba(99, 102, 241, 0.12) 0%, rgba(248, 250, 252, 1) 75%);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -16,37 +17,37 @@
     }
     .login-container {
       width: 100%;
-      max-width: 420px;
-      padding: 20px;
+      max-width: 440px;
+      padding: 24px;
     }
     .login-card {
-      background: rgba(255, 255, 255, 0.85);
-      backdrop-filter: blur(30px);
-      -webkit-backdrop-filter: blur(30px);
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
       border-radius: var(--border-radius-xl);
-      border: 1px solid rgba(255, 255, 255, 0.6);
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
-      padding: 44px 36px;
+      border: 1px solid rgba(226, 232, 240, 0.8);
+      box-shadow: var(--shadow-lg);
+      padding: 48px 40px;
       text-align: center;
     }
     .login-logo {
-      width: 48px;
-      height: 48px;
-      background: linear-gradient(135deg, #0071E3, #42A5F5);
+      width: 54px;
+      height: 54px;
+      background: var(--color-accent-gradient);
       color: white;
-      border-radius: 14px;
+      border-radius: 16px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      font-size: 24px;
-      font-weight: 700;
-      margin-bottom: 20px;
-      box-shadow: 0 8px 20px rgba(0, 113, 227, 0.3);
+      font-size: 26px;
+      font-weight: 800;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow-accent);
     }
     .login-title {
-      font-size: 28px;
-      font-weight: 700;
-      letter-spacing: -0.5px;
+      font-size: 30px;
+      font-weight: 800;
+      letter-spacing: -0.8px;
       color: var(--text-primary);
       margin-bottom: 6px;
     }
@@ -55,53 +56,14 @@
       color: var(--text-secondary);
       margin-bottom: 32px;
     }
-    .form-group {
-      text-align: left;
-      margin-bottom: 20px;
-    }
-    .form-label {
-      display: block;
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--text-secondary);
-      margin-bottom: 8px;
-    }
-    .form-input {
-      width: 100%;
-      padding: 14px 16px;
-      border-radius: var(--border-radius-md);
-      border: 1px solid var(--border-light);
-      background: rgba(255, 255, 255, 0.9);
-      font-size: 15px;
-      font-family: inherit;
-      outline: none;
-      transition: all 0.2s;
-    }
-    .form-input:focus {
-      border-color: var(--color-accent);
-      box-shadow: 0 0 0 4px var(--color-accent-bg);
-    }
-    .btn-submit {
-      width: 100%;
-      padding: 14px;
-      border-radius: var(--border-radius-md);
-      background: var(--color-accent);
-      color: white;
-      font-size: 16px;
-      font-weight: 600;
-      border: none;
-      cursor: pointer;
-      margin-top: 10px;
-      transition: all 0.2s;
-    }
-    .btn-submit:hover {
-      background: var(--color-accent-hover);
-      box-shadow: 0 6px 20px rgba(0, 113, 227, 0.3);
-    }
     .demo-hint {
-      margin-top: 24px;
+      margin-top: 28px;
       font-size: 12px;
       color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
     }
   </style>
 </head>
@@ -110,34 +72,48 @@
     <div class="login-card">
       <div class="login-logo">✦</div>
       <h1 class="login-title">EduSense</h1>
-      <p class="login-subtitle">Academic intelligence, simplified.</p>
+      <p class="login-subtitle">Academic Intelligence & Risk Analytics Platform</p>
 
       {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
           {% for category, message in messages %}
-            <div style="background:var(--color-risk-bg); color:var(--color-risk); padding:10px; border-radius:8px; font-size:13px; margin-bottom:16px;">
-              {{ message }}
+            <div style="background:var(--color-risk-bg); color:var(--color-risk-hover); border:1px solid var(--color-risk-border); padding:12px; border-radius:var(--border-radius-md); font-size:13px; font-weight:600; margin-bottom:20px; text-align:left; display:flex; align-items:center; gap:8px;">
+              <i data-lucide="alert-circle" style="width:16px; height:16px;"></i> {{ message }}
             </div>
           {% endfor %}
         {% endif %}
       {% endwith %}
 
       <form method="POST" action="{{ url_for('login') }}">
-        <div class="form-group">
+        <div class="form-group" style="text-align:left;">
           <label class="form-label" for="email">Username</label>
-          <input type="text" id="email" name="email" class="form-input" placeholder="admin" value="admin" required>
+          <div class="input-wrapper">
+            <i data-lucide="user" class="input-icon"></i>
+            <input type="text" id="email" name="email" class="form-input" placeholder="admin" value="admin" required>
+          </div>
         </div>
 
-        <div class="form-group">
+        <div class="form-group" style="text-align:left; margin-bottom:28px;">
           <label class="form-label" for="password">Password</label>
-          <input type="password" id="password" name="password" class="form-input" placeholder="••••••••" value="admin" required>
+          <div class="input-wrapper">
+            <i data-lucide="lock" class="input-icon"></i>
+            <input type="password" id="password" name="password" class="form-input" placeholder="••••••••" value="admin" required>
+          </div>
         </div>
 
-        <button type="submit" class="btn-submit">Sign In</button>
+        <button type="submit" class="btn-apple btn-primary-apple" style="width:100%; padding:14px; font-size:16px;">
+          Sign In to Workspace <i data-lucide="arrow-right" style="width:18px; height:18px;"></i>
+        </button>
       </form>
 
-      <p class="demo-hint">Project Demo • Any valid credentials will sign in</p>
+      <div class="demo-hint">
+        <i data-lucide="sparkles" style="width:13px; height:13px; color:var(--color-accent);"></i>
+        Demonstration Mode • Default credentials pre-filled
+      </div>
     </div>
   </div>
+  <script>
+    lucide.createIcons();
+  </script>
 </body>
 </html>

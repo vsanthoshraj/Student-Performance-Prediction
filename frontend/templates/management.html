@@ -1,0 +1,373 @@
+{% extends "base.html" %}
+
+{% block title %}Master Data & Staff Management — EduSense AI{% endblock %}
+{% block header_title %}Master Data Management{% endblock %}
+
+{% block content %}
+<div style="max-width:1100px; margin:0 auto; padding-bottom:40px;">
+
+  <!-- Hero Header Banner -->
+  <div class="settings-header-card" style="background: linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 100%); border-color:#BAE6FD;">
+    <div>
+      <div style="display:flex; align-items:center; gap:10px; margin-bottom:6px;">
+        <span class="card-header-badge" style="background:#E0F2FE; color:#0369A1;">
+          <i data-lucide="user-cog" style="width:12px; height:12px;"></i> Academic Entities
+        </span>
+        <span class="card-header-badge" style="background:#ECFDF5; color:#065F46;">
+          <i data-lucide="database" style="width:12px; height:12px;"></i> Future Readiness
+        </span>
+      </div>
+      <h1 style="font-size:24px; font-weight:800; color:var(--text-primary); letter-spacing:-0.5px; margin-bottom:4px;">
+        Staff, Departments & Batches Manager
+      </h1>
+      <p style="font-size:14px; color:var(--text-secondary);">
+        Configure faculty rosters, academic departments, and active student year batches for upcoming semesters.
+      </p>
+    </div>
+  </div>
+
+  <!-- Navigation Grid / Tabs for 3 Sections -->
+  <div style="display:grid; grid-template-columns: 1fr; gap:32px;">
+
+    <!-- Card 1: Faculty & Staff Members -->
+    <div class="card-apple">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px; margin-bottom:20px;">
+        <div style="display:flex; align-items:center; gap:14px;">
+          <div class="section-icon-badge" style="background: linear-gradient(135deg, #6366F1 0%, #4F46E5 100%);">
+            <i data-lucide="users"></i>
+          </div>
+          <div>
+            <h2 class="card-title" style="font-size:18px;">Faculty & Staff Members</h2>
+            <p style="font-size:13px; color:var(--text-secondary);">Manage teaching staff, lab instructors, and administrative roles.</p>
+          </div>
+        </div>
+
+        <button class="btn-apple btn-primary-apple" onclick="toggleForm('staffFormCard')">
+          <i data-lucide="user-plus"></i> Add New Staff
+        </button>
+      </div>
+
+      <!-- Add Staff Form (Collapsible) -->
+      <div id="staffFormCard" style="display:none; background:#F8FAFC; border:1px solid var(--border-light); padding:20px; border-radius:var(--border-radius-md); margin-bottom:24px;">
+        <h4 style="font-size:14px; font-weight:700; margin-bottom:14px; color:var(--text-primary);">Add Faculty / Staff Member</h4>
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:16px;">
+          <div class="form-group" style="margin:0;">
+            <label class="form-label">Full Name</label>
+            <input type="text" id="staffName" class="form-input" placeholder="e.g. Dr. K. Meena">
+          </div>
+          <div class="form-group" style="margin:0;">
+            <label class="form-label">Designation</label>
+            <input type="text" id="staffDesignation" class="form-input" placeholder="e.g. Associate Professor">
+          </div>
+          <div class="form-group" style="margin:0;">
+            <label class="form-label">Department</label>
+            <input type="text" id="staffDept" class="form-input" placeholder="e.g. AI & Data Science">
+          </div>
+          <div class="form-group" style="margin:0;">
+            <label class="form-label">Official Email</label>
+            <input type="email" id="staffEmail" class="form-input" placeholder="e.g. meena@university.edu">
+          </div>
+        </div>
+        <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:16px;">
+          <button type="button" class="btn-apple btn-secondary-apple" onclick="toggleForm('staffFormCard')">Cancel</button>
+          <button type="button" class="btn-apple btn-primary-apple" onclick="addStaff()">Save Staff Member</button>
+        </div>
+      </div>
+
+      <!-- Staff List Table -->
+      <div class="table-responsive">
+        <table class="table-apple">
+          <thead>
+            <tr>
+              <th>Staff Name</th>
+              <th>Designation</th>
+              <th>Department</th>
+              <th>Email</th>
+              <th style="text-align:right;">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for s in staffs %}
+            <tr>
+              <td><strong style="color:var(--text-primary);">{{ s.name }}</strong></td>
+              <td><span class="badge-status badge-good" style="font-weight:600;">{{ s.designation }}</span></td>
+              <td>{{ s.department }}</td>
+              <td><span style="color:var(--text-secondary); font-size:13px;">{{ s.email }}</span></td>
+              <td style="text-align:right;">
+                <button class="btn-apple btn-secondary-apple" style="padding:6px 12px; color:var(--color-risk);" onclick="deleteStaff({{ s.id }}, '{{ s.name }}')">
+                  <i data-lucide="trash-2" style="width:14px; height:14px;"></i> Remove
+                </button>
+              </td>
+            </tr>
+            {% else %}
+            <tr>
+              <td colspan="5" style="text-align:center; padding:30px; color:var(--text-muted);">No staff records found.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+
+    <!-- Card 2: Departments Management -->
+    <div class="card-apple">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px; margin-bottom:20px;">
+        <div style="display:flex; align-items:center; gap:14px;">
+          <div class="section-icon-badge" style="background: linear-gradient(135deg, #0EA5E9 0%, #0284C7 100%);">
+            <i data-lucide="building-2"></i>
+          </div>
+          <div>
+            <h2 class="card-title" style="font-size:18px;">Academic Departments</h2>
+            <p style="font-size:13px; color:var(--text-secondary);">Manage department branches, short codes, and Head of Department (HOD) assignments.</p>
+          </div>
+        </div>
+
+        <button class="btn-apple btn-primary-apple" onclick="toggleForm('deptFormCard')">
+          <i data-lucide="plus"></i> Add Department
+        </button>
+      </div>
+
+      <!-- Add Department Form -->
+      <div id="deptFormCard" style="display:none; background:#F8FAFC; border:1px solid var(--border-light); padding:20px; border-radius:var(--border-radius-md); margin-bottom:24px;">
+        <h4 style="font-size:14px; font-weight:700; margin-bottom:14px; color:var(--text-primary);">Register New Academic Department</h4>
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:16px;">
+          <div class="form-group" style="margin:0;">
+            <label class="form-label">Department Name</label>
+            <input type="text" id="deptName" class="form-input" placeholder="e.g. Cyber Security">
+          </div>
+          <div class="form-group" style="margin:0;">
+            <label class="form-label">Code / Abbreviation</label>
+            <input type="text" id="deptCode" class="form-input" placeholder="e.g. CS">
+          </div>
+          <div class="form-group" style="margin:0;">
+            <label class="form-label">Head of Department (HOD)</label>
+            <input type="text" id="deptHod" class="form-input" placeholder="e.g. Dr. A. Kumar">
+          </div>
+        </div>
+        <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:16px;">
+          <button type="button" class="btn-apple btn-secondary-apple" onclick="toggleForm('deptFormCard')">Cancel</button>
+          <button type="button" class="btn-apple btn-primary-apple" onclick="addDepartment()">Save Department</button>
+        </div>
+      </div>
+
+      <!-- Department Table -->
+      <div class="table-responsive">
+        <table class="table-apple">
+          <thead>
+            <tr>
+              <th>Code</th>
+              <th>Department Name</th>
+              <th>Head of Department (HOD)</th>
+              <th style="text-align:right;">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for d in departments %}
+            <tr>
+              <td><span class="badge-status badge-warning" style="font-weight:700;">{{ d.code }}</span></td>
+              <td><strong style="color:var(--text-primary);">{{ d.name }}</strong></td>
+              <td>{{ d.hod }}</td>
+              <td style="text-align:right;">
+                <button class="btn-apple btn-secondary-apple" style="padding:6px 12px; color:var(--color-risk);" onclick="deleteDepartment({{ d.id }}, '{{ d.name }}')">
+                  <i data-lucide="trash-2" style="width:14px; height:14px;"></i> Remove
+                </button>
+              </td>
+            </tr>
+            {% else %}
+            <tr>
+              <td colspan="4" style="text-align:center; padding:30px; color:var(--text-muted);">No departments registered.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+
+    <!-- Card 3: Academic Years & Batches -->
+    <div class="card-apple">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px; margin-bottom:20px;">
+        <div style="display:flex; align-items:center; gap:14px;">
+          <div class="section-icon-badge" style="background: linear-gradient(135deg, #10B981 0%, #059669 100%);">
+            <i data-lucide="calendar"></i>
+          </div>
+          <div>
+            <h2 class="card-title" style="font-size:18px;">Academic Years & Batches</h2>
+            <p style="font-size:13px; color:var(--text-secondary);">Configure active academic year terms (e.g. III Year) and student graduation batches.</p>
+          </div>
+        </div>
+
+        <button class="btn-apple btn-primary-apple" onclick="toggleForm('yearFormCard')">
+          <i data-lucide="plus"></i> Add Academic Term
+        </button>
+      </div>
+
+      <!-- Add Year Form -->
+      <div id="yearFormCard" style="display:none; background:#F8FAFC; border:1px solid var(--border-light); padding:20px; border-radius:var(--border-radius-md); margin-bottom:24px;">
+        <h4 style="font-size:14px; font-weight:700; margin-bottom:14px; color:var(--text-primary);">Create Academic Year / Batch</h4>
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:16px;">
+          <div class="form-group" style="margin:0;">
+            <label class="form-label">Academic Term Title</label>
+            <input type="text" id="yearName" class="form-input" placeholder="e.g. I Year (2025–2029)">
+          </div>
+          <div class="form-group" style="margin:0;">
+            <label class="form-label">Batch Range</label>
+            <input type="text" id="yearBatch" class="form-input" placeholder="e.g. 2025-2029">
+          </div>
+        </div>
+        <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:16px;">
+          <button type="button" class="btn-apple btn-secondary-apple" onclick="toggleForm('yearFormCard')">Cancel</button>
+          <button type="button" class="btn-apple btn-primary-apple" onclick="addAcademicYear()">Save Academic Term</button>
+        </div>
+      </div>
+
+      <!-- Academic Years Table -->
+      <div class="table-responsive">
+        <table class="table-apple">
+          <thead>
+            <tr>
+              <th>Academic Term</th>
+              <th>Graduation Batch</th>
+              <th style="text-align:right;">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for y in years %}
+            <tr>
+              <td><strong style="color:var(--text-primary);">{{ y.year_name }}</strong></td>
+              <td><span class="badge-status badge-good">{{ y.batch }}</span></td>
+              <td style="text-align:right;">
+                <button class="btn-apple btn-secondary-apple" style="padding:6px 12px; color:var(--color-risk);" onclick="deleteAcademicYear({{ y.id }}, '{{ y.year_name }}')">
+                  <i data-lucide="trash-2" style="width:14px; height:14px;"></i> Remove
+                </button>
+              </td>
+            </tr>
+            {% else %}
+            <tr>
+              <td colspan="3" style="text-align:center; padding:30px; color:var(--text-muted);">No academic terms configured.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+  function toggleForm(formId) {
+    const el = document.getElementById(formId);
+    if (el) {
+      el.style.display = (el.style.display === 'none' || !el.style.display) ? 'block' : 'none';
+    }
+  }
+
+  function addStaff() {
+    const name = document.getElementById('staffName').value.trim();
+    const designation = document.getElementById('staffDesignation').value.trim();
+    const department = document.getElementById('staffDept').value.trim();
+    const email = document.getElementById('staffEmail').value.trim();
+
+    if (!name || !designation || !department || !email) {
+      alert('Please fill out all staff fields.');
+      return;
+    }
+
+    fetch('/api/staff/add', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, designation, department, email })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        window.location.reload();
+      } else {
+        alert(data.message);
+      }
+    });
+  }
+
+  function deleteStaff(id, name) {
+    if (confirm(`Remove staff member "${name}"?`)) {
+      fetch(`/api/staff/delete/${id}`, { method: 'POST' })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) window.location.reload();
+        });
+    }
+  }
+
+  function addDepartment() {
+    const name = document.getElementById('deptName').value.trim();
+    const code = document.getElementById('deptCode').value.trim();
+    const hod = document.getElementById('deptHod').value.trim();
+
+    if (!name || !code || !hod) {
+      alert('Please fill out all department fields.');
+      return;
+    }
+
+    fetch('/api/department/add', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, code, hod })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        window.location.reload();
+      } else {
+        alert(data.message);
+      }
+    });
+  }
+
+  function deleteDepartment(id, name) {
+    if (confirm(`Remove department "${name}"?`)) {
+      fetch(`/api/department/delete/${id}`, { method: 'POST' })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) window.location.reload();
+        });
+    }
+  }
+
+  function addAcademicYear() {
+    const year_name = document.getElementById('yearName').value.trim();
+    const batch = document.getElementById('yearBatch').value.trim();
+
+    if (!year_name || !batch) {
+      alert('Please fill out all academic year fields.');
+      return;
+    }
+
+    fetch('/api/year/add', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ year_name, batch })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        window.location.reload();
+      } else {
+        alert(data.message);
+      }
+    });
+  }
+
+  function deleteAcademicYear(id, name) {
+    if (confirm(`Remove academic term "${name}"?`)) {
+      fetch(`/api/year/delete/${id}`, { method: 'POST' })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) window.location.reload();
+        });
+    }
+  }
+</script>
+{% endblock %}

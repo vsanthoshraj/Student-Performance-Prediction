@@ -1,13 +1,12 @@
 # 🚀 Complete Setup & Deployment Guide
 
-This guide covers running EduSense locally, via Docker, and with Docker Compose.
+This guide covers local development, multi-stage Docker containerization, and multi-service Docker Compose deployment.
 
 ---
 
-## 1. Running Locally (Development Mode)
+## 1. Local Development Setup
 
-### Step 1: Clone Repository & Setup Virtual Environment
-
+### Step 1: Clone Repository & Virtual Environment
 ```bash
 git clone https://github.com/vsanthoshraj/Student-Performance-Prediction.git
 cd Student-Performance-Prediction
@@ -17,89 +16,63 @@ source venv/bin/activate
 ```
 
 ### Step 2: Install Python Dependencies
-
 ```bash
 pip install -r backend/requirements.txt
 ```
 
-### Step 3: Configure Environment Variables
-
-Create `.env` file from template:
-
+### Step 3: Environment Configuration
+Copy environment variable template:
 ```bash
 cp .env.example .env
 ```
+*(Optionally configure `MYSQL_HOST`, `MYSQL_PORT`, `MYSQL_USER`, `MYSQL_PASSWORD`, `GEMINI_API_KEY`, and `SMTP_SERVER` parameters in `.env`).*
 
-*(Optional: Edit `.env` to configure MySQL credentials, Gemini API key, or SMTP email parameters).*
-
-### Step 4: Launch Application
-
+### Step 4: Run Application
 ```bash
 python run.py
 ```
-
-- Open **http://localhost:5000** in your browser.
-- **Login Credentials**: Username: `admin` | Password: `admin`
+Open **http://localhost:5000** in your browser.  
+Default login: **`admin`** / **`admin`**.
 
 ---
 
-## 2. Running with Docker Container
+## 2. Docker Container Deployment
 
-EduSense is published as a pre-built Docker image on Docker Hub: **`vsanthoshraj/student-performance-prediction:latest`**.
+EduSense includes an optimized multi-stage `Dockerfile` with non-root security (`appuser` UID 10001) and health checks.
 
-### Option A: Pull & Run Pre-built Image from Docker Hub
-
+### Build and Run Image
 ```bash
-docker run -d \
-  --name edusense_app \
-  -p 5000:5000 \
-  -e SECRET_KEY="edusense_production_secret" \
-  vsanthoshraj/student-performance-prediction:latest
-```
-
-### Option B: Build & Run Image Locally
-
-```bash
-# Build Docker Image
+# Build Docker image
 docker build -t student-performance-prediction:latest .
 
-# Run Container
+# Run container
 docker run -d \
   --name edusense_app \
   -p 5000:5000 \
+  -e PORT=5000 \
   student-performance-prediction:latest
 ```
 
-Access the app at **http://localhost:5000**.
-
 ---
 
-## 3. Running with Docker Compose (Full Stack with MySQL)
+## 3. Full-Stack Production Deployment (Docker Compose + MySQL)
 
-To spin up both the **EduSense Web App** and a dedicated **MySQL 8.0 Database** container simultaneously:
+To launch the web application alongside a dedicated **MySQL 8.0** database container:
 
-### Step 1: Launch Stack
-
+### Launch Stack
 ```bash
-docker-compose up -d
+docker-compose up -d --build
 ```
 
-### Step 2: Check Running Containers
-
+### Monitor Services & Logs
 ```bash
 docker-compose ps
-```
-
-### Step 3: View Logs
-
-```bash
 docker-compose logs -f web
 ```
 
-### Step 4: Stop Stack
-
+### Tear Down Stack
 ```bash
 docker-compose down
 ```
 
-Access the application at **http://localhost:5000**.
+Access at **http://localhost:5000**.

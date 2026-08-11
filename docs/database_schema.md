@@ -1,37 +1,36 @@
 # 🗄️ Database Architecture & Fallback Mechanics
 
-## 🛡️ Transparent Multi-Engine Architecture
+## 🛡️ Multi-Engine Persistent Storage Architecture
 
-EduSense implements a resilient database abstraction layer in `backend/database.py`. It prioritizes **MySQL Server** for production durability, while incorporating an automatic, zero-configuration **SQLite fallback** to ensure zero downtime during vivas or offline deployments.
+EduSense features a database service abstraction (`backend/database.py`) designed for safety, high reliability, and zero-downtime operation. It uses **MySQL Server** (`edusense_db`) as the primary storage engine and incorporates a seamless **SQLite fallback** (`edusense_fallback.db`).
 
 ```
-                  ┌──────────────────────┐
-                  │ Flask Request / Service│
-                  └──────────┬───────────┘
-                             │
-                             ▼
-                  ┌──────────────────────┐
-                  │ Database.get_conn()  │
-                  └──────────┬───────────┘
-                             │
-            ┌────────────────┴────────────────┐
-            │ Attempts MySQL Connection      │
-            └────────┬───────────────┬────────┘
-        Success      │               │ Failure
-                     ▼               ▼
-           ┌────────────────┐  ┌─────────────────────┐
-           │ MySQL Database │  │ SQLite Fallback DB  │
-           │ (edusense_db)  │  │ (edusense_fallback) │
-           └────────────────┘  └─────────────────────┘
+                    ┌────────────────────────┐
+                    │ Flask API & Services   │
+                    └───────────┬────────────┘
+                                │
+                                ▼
+                    ┌────────────────────────┐
+                    │ Database.get_conn()    │
+                    └───────────┬────────────┘
+                                │
+             ┌──────────────────┴──────────────────┐
+             │ Attempts MySQL Server Connection   │
+             └──────────┬─────────────────┬────────┘
+         Success        │                 │ Failure
+                        ▼                 ▼
+             ┌────────────────────┐   ┌─────────────────────────┐
+             │ MySQL 8.0 Server   │   │ SQLite Fallback DB      │
+             │ (edusense_db)      │   │ (edusense_fallback.db)  │
+             └────────────────────┘   └─────────────────────────┘
 ```
 
 ---
 
-## 📋 Database Tables DDL
+## 📋 Database Tables & DDL Schema
 
 ### 1. `students` Table
-
-Stores student demographic data, performance scores, and rule-evaluated status.
+Stores student Demographic details, performance metrics, and evaluation status.
 
 ```sql
 CREATE TABLE IF NOT EXISTS students (
@@ -50,9 +49,44 @@ CREATE TABLE IF NOT EXISTS students (
 );
 ```
 
-### 2. `settings` Table
+### 2. `staffs` Table
+Stores teaching faculty, lab instructors, and departmental designations.
 
-Stores dynamic threshold configurations, Gemini API keys, and SMTP server details.
+```sql
+CREATE TABLE IF NOT EXISTS staffs (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    designation VARCHAR(100) NOT NULL,
+    department VARCHAR(100) NOT NULL,
+    email VARCHAR(100) NOT NULL
+);
+```
+
+### 3. `departments` Table
+Stores academic department branches and assigned Head of Department (HOD) faculty.
+
+```sql
+CREATE TABLE IF NOT EXISTS departments (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    code VARCHAR(20) NOT NULL,
+    hod VARCHAR(100) NOT NULL
+);
+```
+
+### 4. `academic_years` Table
+Stores active academic terms and student graduation batches.
+
+```sql
+CREATE TABLE IF NOT EXISTS academic_years (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    year_name VARCHAR(100) NOT NULL,
+    batch VARCHAR(50) NOT NULL
+);
+```
+
+### 5. `settings` Table
+Stores dynamic threshold parameters, Gemini API keys, and SMTP configuration.
 
 ```sql
 CREATE TABLE IF NOT EXISTS settings (
@@ -61,9 +95,8 @@ CREATE TABLE IF NOT EXISTS settings (
 );
 ```
 
-### 3. `alert_logs` Table
-
-Records an audit trail of dispatched SMTP email alerts.
+### 6. `alert_logs` Table
+Audit trail of dispatched warning emails.
 
 ```sql
 CREATE TABLE IF NOT EXISTS alert_logs (

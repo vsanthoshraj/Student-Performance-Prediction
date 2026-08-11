@@ -11,8 +11,8 @@ services:
       - PORT=5000
       - MYSQL_HOST=db
       - MYSQL_PORT=3306
-      - MYSQL_USER=edusense_user
-      - MYSQL_PASSWORD=edusense_pass
+      - MYSQL_USER=myuser
+      - MYSQL_PASSWORD=mypassword
       - MYSQL_DATABASE=edusense_db
     depends_on:
       - db
@@ -22,12 +22,13 @@ services:
     image: mysql:8.0
     container_name: edusense_db
     environment:
-      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_ROOT_PASSWORD: root123
       MYSQL_DATABASE: edusense_db
-      MYSQL_USER: edusense_user
-      MYSQL_PASSWORD: edusense_pass
+      MYSQL_USER: myuser
+      MYSQL_PASSWORD: mypassword
     ports:
       - "3306:3306"
+
     volumes:
       - mysql_data:/var/lib/mysql
     restart: always

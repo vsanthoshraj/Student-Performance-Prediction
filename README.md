@@ -1,52 +1,55 @@
-# 🎓 EduSense — AI Student Performance Monitoring & Early Alert System
+# 🎓 EduSense — AI Student Performance Monitoring & Master Data Management System
 
 > **Jayaraj Annapackiam C. S. I. College of Engineering, Nazareth**  
 > Department of Artificial Intelligence and Data Science  
 > Course: **CW3551 Data and Information Security** | Batch: **2023–2027** | Sem: **05**  
-> Instructor: **G. Alisha Evangeline, AP/ADS**
+> Instructor: **G. Alisha Evangeline, AP/ADS** | Developer: **Santhosh Raj V**
 
-## 📚 Documentation Links
+---
 
-Detailed documentation is available in the [`docs/`](./docs) directory:
+## 📚 Documentation Directory
 
-- 📘 **[Project Overview & Architecture](./docs/overview.md)** — Core workflow and key capabilities.
-- 🛠️ **[Tech Stack & Design System](./docs/tech_stack.md)** — Frontend/backend technologies and styling rules.
-- 🚀 **[Setup & Deployment Guide](./docs/setup_guide.md)** — Step-by-step local, Docker, and Docker Compose deployment.
-- 🗄️ **[Database Architecture](./docs/database_schema.md)** — MySQL schema, DDL scripts, and SQLite fallback mechanics.
+Detailed technical documentation is available in the [`docs/`](./docs) directory:
+
+- 📘 **[Project Overview & Architecture](./docs/overview.md)** — Workflow, AI integration, and core capabilities.
+- 🛠️ **[Tech Stack & Design System](./docs/tech_stack.md)** — Plus Jakarta Sans typography, glassmorphism, and component system.
+- 🚀 **[Setup & Deployment Guide](./docs/setup_guide.md)** — Multi-stage Docker, Docker Compose, and local execution.
+- 🗄️ **[Database Architecture & Schema](./docs/database_schema.md)** — MySQL 8.0 schema DDL, multi-table CRUD, and SQLite fallback.
 
 ---
 
 ## 📌 Project Overview
 
-**EduSense** is a production-quality web application that monitors student academic performance, detects at-risk students using rule-based evaluation, provides AI-powered insights via Google Gemini, and dispatches automated SMTP email alerts — all from a single uploaded Excel markbook.
+**EduSense** is an enterprise-grade academic analytics platform designed to monitor student performance, detect academic risks, manage institution master data (staff, departments, academic terms), query insights using Google Gemini AI, and dispatch automated SMTP email notifications.
 
-### Core Workflow
+### Core End-to-End Workflow
 
 ```
-Upload Excel Markbook → Parse & Store in MySQL → Dashboard Analytics
-→ Rule-Based Risk Detection → Gemini AI Chatbot → SMTP Email Alerts
+Excel Markbook Upload ➔ Multi-Sheet Parsing ➔ MySQL Database Storage
+                                                      │
+    ┌─────────────────────────────────────────────────┴─────────────────────────────────────────────────┐
+    ▼                                                 ▼                                                 ▼
+Early Warning Rule Engine                     Master Data Manager                             Google Gemini AI Assistant
+(Attendance, Marks, Assignment Cut-offs)      (Staffs, Depts, Academic Years)                 (Dataset RAG & Offline Rules)
+    │                                                 │                                                 │
+    ▼                                                 ▼                                                 ▼
+Interactive Analytics Dashboard               Departmental & Staff Rosters                    Automated SMTP Email Alerts
 ```
-
----
-
-## 🖥️ Screenshots
-
-| Dashboard | Student Directory | AI Chatbot |
-|-----------|-------------------|------------|
-| KPI cards, Charts, At-Risk table | Searchable, filterable student list | Natural language dataset queries |
 
 ---
 
 ## 🛠️ Technology Stack
 
-| Layer | Technology |
-|-------|-----------|
-| **Frontend** | HTML5, CSS3 (Apple Design System), JavaScript, Chart.js, Lucide Icons |
-| **Backend** | Python, Flask |
-| **Database** | MySQL (with automatic SQLite fallback) |
-| **AI Engine** | Google Gemini API (gemini-2.5-flash) |
-| **Email** | SMTP (Gmail / configurable) |
-| **Data Processing** | Pandas, OpenPyXL |
+| Layer | Technology & Tools |
+|-------|-------------------|
+| **Typography & UI** | **Plus Jakarta Sans**, Modern Glassmorphic Design System, HSL Color Palettes, Micro-animations |
+| **Frontend Framework** | HTML5, Vanilla CSS3, JavaScript (ES6+), Chart.js 4.x, Lucide Vector Icons |
+| **Backend API** | Python 3.10+, Flask REST API framework |
+| **Database** | MySQL 8.0 (PyMySQL with automatic zero-downtime SQLite fallback) |
+| **AI Reasoning Engine**| Google Gemini API (`gemini-2.5-flash`) with offline rule engine fallback |
+| **Email Dispatcher** | Python `smtplib`, `email.mime` (TLS/SSL multi-provider support) |
+| **Data Ingestion** | Pandas, OpenPyXL (Multi-sheet markbook parser) |
+| **Containerization** | Multi-stage production `Dockerfile` (Non-root `appuser`, health checks, layer caching) |
 
 ---
 
@@ -54,181 +57,107 @@ Upload Excel Markbook → Parse & Store in MySQL → Dashboard Analytics
 
 ```
 Student-Performance-Prediction/
-├── run.py                          # Root launcher script
-├── .env                            # Environment configuration
-├── .env.example                    # Template for environment variables
-├── README.md
+├── run.py                          # Application entry point (PORT configurable)
+├── Dockerfile                      # Optimized multi-stage production build
+├── docker-compose.yml              # Multi-container stack (Flask + MySQL 8.0)
+├── .dockerignore                   # Excludes build context noise & virtual environments
+├── .env.example                    # Environment variable template
+├── README.md                       # Main documentation guide
 │
-├── frontend/                       # UI Layer
+├── frontend/                       # Web UI Layer
 │   ├── templates/
-│   │   ├── base.html               # Master layout + AI chatbot drawer
-│   │   ├── login.html              # Sign-in page
-│   │   ├── dashboard.html          # KPI overview + Chart.js charts
-│   │   ├── students.html           # Searchable student directory
-│   │   ├── analytics.html          # Score distributions + dept matrix
-│   │   ├── alerts.html             # Email alert management
-│   │   ├── settings.html           # Thresholds & API configuration
-│   │   └── upload.html             # Drag-and-drop Excel import
+│   │   ├── base.html               # Main layout drawer & navigation
+│   │   ├── login.html              # Modern glassmorphic authentication screen
+│   │   ├── dashboard.html          # Dynamic KPI cards & Chart.js visualizations
+│   │   ├── students.html           # Searchable & filterable student registry
+│   │   ├── analytics.html          # Performance matrix & departmental insights
+│   │   ├── alerts.html             # SMTP email notification audit logs
+│   │   ├── management.html         # Master Data Manager (Staffs, Depts, Academic Years)
+│   │   ├── settings.html           # Threshold range sliders & API key controls
+│   │   └── upload.html             # Drag-and-drop Excel markbook importer
 │   └── static/
-│       ├── css/style.css           # Apple-inspired design system
+│       ├── css/style.css           # Modern design system & token definitions
 │       └── js/
-│           ├── dashboard.js        # Charts, modals, filters
-│           └── chatbot.js          # Floating AI assistant controller
+│           ├── dashboard.js        # Dynamic charts, modal triggers, filters
+│           └── chatbot.js          # Interactive Gemini AI assistant drawer
 │
-├── backend/                        # Business Logic Layer
-│   ├── app.py                      # Flask server + REST API routes
-│   ├── config.py                   # Environment & path configuration
-│   ├── database.py                 # MySQL + SQLite fallback engine
-│   ├── schema.sql                  # MySQL DDL script
+├── backend/                        # Core Engine & Services
+│   ├── app.py                      # Flask routes & REST endpoints
+│   ├── config.py                   # System configuration & environment paths
+│   ├── database.py                 # MySQL persistent layer with SQLite fallback
+│   ├── schema.sql                  # MySQL database DDL definitions
 │   ├── requirements.txt            # Python dependencies
-│   ├── data/                       # Real dataset + fallback DB
-│   │   └── Document from Santhosh Raj V.xlsx
-│   ├── uploads/                    # User-uploaded Excel files
+│   ├── data/                       # Official dataset & SQLite fallback database
 │   └── services/
-│       ├── excel_service.py        # Multi-sheet markbook parser
-│       ├── risk_service.py         # Rule-based risk evaluator
-│       ├── gemini_service.py       # Gemini AI + offline fallback
-│       └── email_service.py        # SMTP alert dispatcher
+│       ├── excel_service.py        # College markbook parser (I1, I2, I3, RUBRICS)
+│       ├── risk_service.py         # Configurable early warning risk calculator
+│       ├── gemini_service.py       # Google Gemini LLM service with RAG prompt
+│       └── email_service.py        # Automated SMTP notification manager
 │
-└── Document from Santhosh Raj V.xlsx   # Original source data
+└── docs/                           # Technical documentation suite
+    ├── overview.md
+    ├── tech_stack.md
+    ├── setup_guide.md
+    └── database_schema.md
 ```
 
 ---
 
-## 🚀 Quick Start
+## 🚀 Quick Start & Deployment
 
-### Prerequisites
-- Python 3.10+
-- MySQL Server (optional — app auto-falls back to SQLite)
-
-### Installation
+### 1. Local Development Mode
 
 ```bash
-# 1. Clone the repository
+# Clone repository
 git clone https://github.com/vsanthoshraj/Student-Performance-Prediction.git
 cd Student-Performance-Prediction
 
-# 2. Create virtual environment
+# Create and activate virtual environment
 python3 -m venv venv
 source venv/bin/activate
 
-# 3. Install dependencies
+# Install dependencies
 pip install -r backend/requirements.txt
 
-# 4. Configure environment (optional)
-cp .env.example .env
-# Edit .env with your MySQL, Gemini API, and SMTP credentials
-
-# 5. Run the application
+# Start application
 python run.py
 ```
-
-### Access
-- **URL**: http://localhost:5000
-- **Login**: Username: `admin` | Password: `admin`
+Access at: **`http://localhost:5000`** (Default Login: `admin` / `admin`).
 
 ---
 
-## 🗄️ Database
+### 2. Multi-Container Production Stack (Docker Compose)
 
-### MySQL Configuration
-Set these in your `.env` file:
-```ini
-MYSQL_HOST=localhost
-MYSQL_PORT=3306
-MYSQL_USER=root
-MYSQL_PASSWORD=your_password
-MYSQL_DATABASE=edusense_db
+Spin up both the **EduSense Web Application** and a persistent **MySQL 8.0 Database** container:
+
+```bash
+# Build and launch background services
+docker-compose up -d --build
+
+# Verify container health
+docker-compose ps
 ```
 
-### Auto-Fallback
-If MySQL is unavailable, EduSense automatically uses an embedded **SQLite** database (`backend/data/edusense_fallback.db`). This ensures the app **never crashes** during live demonstrations.
+---
 
-### Schema (3 tables)
-| Table | Purpose |
-|-------|---------|
-| `students` | Student records (ID, name, email, dept, attendance, marks, assignment, status) |
-| `settings` | Dynamic threshold parameters and API credentials |
-| `alert_logs` | Email dispatch audit trail |
+## 🗄️ Database Architecture (MySQL + Safety Fallback)
+
+All student, staff, department, and academic year records are safely stored in **MySQL** (`edusense_db`).
+
+| Table Name | Primary Purpose | Key Fields |
+|------------|-----------------|------------|
+| `students` | Student academic performance records | `student_id`, `name`, `email`, `department`, `year`, `attendance`, `marks`, `assignment`, `status` |
+| `staffs` | Faculty and teaching staff roster | `id`, `name`, `designation`, `department`, `email` |
+| `departments` | Academic department branches | `id`, `name`, `code`, `hod` |
+| `academic_years` | Active academic terms and batches | `id`, `year_name`, `batch` |
+| `settings` | Dynamic threshold rules & API credentials | `setting_key`, `setting_value` |
+| `alert_logs` | Audit trail of sent notification emails | `id`, `student_id`, `email`, `message`, `sent_at` |
 
 ---
 
-## 📊 Features
+## 👨‍💻 Author & Project Context
 
-### 1. Excel Markbook Parser
-- Supports **multi-sheet college markbooks** (I1, I2, I3, RUBRICS, IAT-REPORT)
-- Also supports standard flat Excel files with column headers
-- Auto-detects format and extracts student data
-
-### 2. Rule-Based Risk Detection
-Students are classified using configurable thresholds:
-| Status | Condition |
-|--------|-----------|
-| **At Risk** | Attendance < 75% AND Marks < 50 |
-| **Warning** | Attendance < 75% OR Marks < 50 |
-| **Good** | All metrics above thresholds |
-
-### 3. AI-Powered Chatbot (Gemini)
-- Natural language queries: *"Which students are at risk?"*, *"Who scored highest?"*
-- Answers strictly from loaded dataset — no hallucination
-- Falls back to built-in analytics engine if API key is absent
-
-### 4. SMTP Email Alerts
-- Individual or bulk email dispatch to at-risk students
-- Configurable SMTP server (Gmail, Outlook, etc.)
-- Alert logs stored in database
-
-### 5. Interactive Dashboard
-- KPI cards (Total, Good, Warning, At Risk)
-- Performance distribution donut chart
-- Attendance distribution bar chart
-- Department-wise risk breakdown
-
----
-
-## 📋 Dataset
-
-This project uses **real academic data** from:
-- **College**: Jayaraj Annapackiam C. S. I. College of Engineering
-- **Course**: CW3551 Data and Information Security
-- **Class**: III ADS (57 students)
-- **Batch**: 2023–2027
-- **Semester**: 05 (Odd Sem, AY 2025–26)
-
-The data is sourced from the official markbook: `Document from Santhosh Raj V.xlsx`
-
----
-
-## ⚙️ Environment Variables
-
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `SECRET_KEY` | Flask session secret | `edusense_super_secret_key_2026` |
-| `MYSQL_HOST` | MySQL server host | `localhost` |
-| `MYSQL_PORT` | MySQL server port | `3306` |
-| `MYSQL_USER` | MySQL username | `root` |
-| `MYSQL_PASSWORD` | MySQL password | *(empty)* |
-| `MYSQL_DATABASE` | MySQL database name | `edusense_db` |
-| `GEMINI_API_KEY` | Google Gemini API key | *(optional)* |
-| `SMTP_SERVER` | SMTP mail server | `smtp.gmail.com` |
-| `SMTP_PORT` | SMTP port | `587` |
-| `SMTP_USERNAME` | SMTP login email | *(optional)* |
-| `SMTP_PASSWORD` | SMTP app password | *(optional)* |
-| `SENDER_EMAIL` | Sender email address | *(optional)* |
-| `ATTENDANCE_THRESHOLD` | Risk threshold for attendance | `75` |
-| `MARKS_THRESHOLD` | Risk threshold for marks | `50` |
-| `ASSIGNMENT_THRESHOLD` | Risk threshold for assignment | `50` |
-
----
-
-## 👨‍💻 Author
-
-**Santhosh Raj V**  
-Department of AI & Data Science  
-Jayaraj Annapackiam C. S. I. College of Engineering, Nazareth
-
----
-
-## 📄 License
-
-This project is developed as a final-year academic project. All rights reserved.
+- **Author**: Santhosh Raj V
+- **Institution**: Jayaraj Annapackiam C. S. I. College of Engineering, Nazareth
+- **Department**: Artificial Intelligence & Data Science
+- **Course**: CW3551 Data and Information Security (Semester 05)

@@ -287,7 +287,63 @@ def api_load_sample():
     risk_srv = get_current_risk_service()
     eval_students, _ = risk_srv.evaluate_dataset(records)
     db.save_students(eval_students)
-    return jsonify({'success': True, 'message': f'Successfully loaded {len(eval_students)} official student records from Document from Santhosh Raj V.xlsx'})
+@app.route('/management')
+def management():
+    staffs = db.get_staffs()
+    departments = db.get_departments()
+    years = db.get_academic_years()
+    return render_template('management.html', staffs=staffs, departments=departments, years=years, active_page='management')
+
+@app.route('/api/staff/add', methods=['POST'])
+def api_add_staff():
+    data = request.get_json() or {}
+    name = data.get('name', '').strip()
+    designation = data.get('designation', '').strip()
+    department = data.get('department', '').strip()
+    email = data.get('email', '').strip()
+    if not name or not designation or not department or not email:
+        return jsonify({'success': False, 'message': 'All staff fields are required.'}), 400
+    db.add_staff(name, designation, department, email)
+    return jsonify({'success': True, 'message': f'Added staff member: {name}'})
+
+@app.route('/api/staff/delete/<int:staff_id>', methods=['POST'])
+def api_delete_staff(staff_id):
+    db.delete_staff(staff_id)
+    return jsonify({'success': True, 'message': 'Staff member deleted.'})
+
+@app.route('/api/department/add', methods=['POST'])
+def api_add_department():
+    data = request.get_json() or {}
+    name = data.get('name', '').strip()
+    code = data.get('code', '').strip()
+    hod = data.get('hod', '').strip()
+    if not name or not code or not hod:
+        return jsonify({'success': False, 'message': 'All department fields are required.'}), 400
+    db.add_department(name, code, hod)
+    return jsonify({'success': True, 'message': f'Added department: {name}'})
+
+@app.route('/api/department/delete/<int:dept_id>', methods=['POST'])
+def api_delete_department(dept_id):
+    db.delete_department(dept_id)
+    return jsonify({'success': True, 'message': 'Department deleted.'})
+
+@app.route('/api/year/add', methods=['POST'])
+def api_add_year():
+    data = request.get_json() or {}
+    year_name = data.get('year_name', '').strip()
+    batch = data.get('batch', '').strip()
+    if not year_name or not batch:
+        return jsonify({'success': False, 'message': 'All year/batch fields are required.'}), 400
+    db.add_academic_year(year_name, batch)
+    return jsonify({'success': True, 'message': f'Added academic year: {year_name}'})
+
+@app.route('/api/year/delete/<int:year_id>', methods=['POST'])
+def api_delete_year(year_id):
+    db.delete_academic_year(year_id)
+    return jsonify({'success': True, 'message': 'Academic year deleted.'})
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port, debug=True)
+
+

@@ -1,47 +1,48 @@
-# 📘 Project Overview & System Architecture
+# 📘 Project Overview & Architecture
 
 ## 🎯 Introduction
 
-**EduSense** (AI Student Performance Monitoring & Early Alert System) is a production-grade web application tailored for higher education institutions. Built for the **Department of Artificial Intelligence and Data Science** at **Jayaraj Annapackiam C. S. I. College of Engineering**, the system automates student performance evaluation, risk identification, AI-driven queries, and email alerts.
+**EduSense** (AI Student Performance Monitoring & Master Data Management System) is an enterprise-grade academic analytics web application tailored for higher education institutions. Developed for the **Department of Artificial Intelligence and Data Science** at **Jayaraj Annapackiam C. S. I. College of Engineering**, the application automates student risk identification, faculty & departmental master data management, generative AI queries, and automated SMTP email warnings.
 
 ---
 
-## 🔄 End-to-End Workflow
+## 🔄 End-to-End System Workflow
 
 ```
 ┌─────────────────────────┐
-│ Excel Markbook Upload   │ (Multi-sheet workbooks: I1, I2, I3, RUBRICS)
+│ Excel Markbook Upload   │ (Multi-sheet workbooks: I1, I2, I3, RUBRICS, IAT)
 └───────────┬─────────────┘
             │
             ▼
 ┌─────────────────────────┐
-│ Parsing & Normalization │ (Extracted: Reg No, Name, Marks, Assignment)
+│ Parsing & Normalization │ (Extracted: Reg No, Name, Marks, Attendance, Assignments)
 └───────────┬─────────────┘
             │
             ▼
 ┌─────────────────────────┐
-│ MySQL Database Storage  │ (Automatic SQLite Fallback for Resilience)
+│ MySQL Database Storage  │ (Persistent storage in edusense_db with SQLite fallback)
 └───────────┬─────────────┘
             │
             ▼
 ┌─────────────────────────┐
-│ Rule-Based Risk Engine  │ (Evaluates Attendance <75% and Marks <50)
+│ Rule-Based Risk Engine  │ (Evaluates dynamic thresholds for Attendance, Marks, Assignment)
 └───────────┬─────────────┘
             │
-  ┌─────────┴────────────────────────┐
-  ▼                                  ▼
-┌─────────────────────────┐        ┌─────────────────────────┐
-│ Interactive Dashboard   │        │ Gemini AI Assistant     │
-│ & Analytics Views       │        │ & Bulk SMTP Alerts      │
-└─────────────────────────┘        └─────────────────────────┘
+  ┌─────────┼───────────────────────────┬───────────────────────────┐
+  ▼         ▼                           ▼                           ▼
+┌───────────────────────┐   ┌───────────────────────┐   ┌───────────────────────┐   ┌───────────────────────┐
+│ Dashboard Analytics   │   │ Master Data Manager   │   │ Gemini AI Assistant   │   │ Bulk SMTP Alert       │
+│ & Visual KPI Cards    │   │ (Staffs, Depts, Years)│   │ (Dataset RAG Prompt)  │   │ Dispatcher Engine     │
+└───────────────────────┘   └───────────────────────┘   └───────────────────────┘   └───────────────────────┘
 ```
 
 ---
 
 ## 🔑 Key Capabilities
 
-1. **Multi-Format Excel Import**: Seamlessly ingests multi-sheet college markbooks (`I1`, `I2`, `I3`, `RUBRICS`) as well as flat `.xlsx` spreadsheets.
-2. **Rule-Based Risk Classification**: Automatically tags students as **Good**, **Warning**, or **At Risk** based on dynamic, configurable thresholds.
-3. **Google Gemini AI Assistant**: Provides natural language query responses backed by real-time dataset context. Includes offline rule engine fallback.
-4. **SMTP Email Notifications**: Dispatches individualized academic warning alerts to students flagged for poor attendance or marks.
-5. **Apple-Inspired UI**: Clean, glassmorphic interface powered by modern CSS, Chart.js, and Lucide icons.
+1. **Multi-Format Excel Markbook Import**: Ingests official multi-sheet college markbooks (`I1`, `I2`, `I3`, `RUBRICS`, `IAT-REPORT`) and flat `.xlsx` spreadsheets.
+2. **Rule-Based Early Warning System**: Automatically flags students as **Good Standing**, **Warning Status**, or **At Risk** using customizable threshold parameters.
+3. **Master Data & Faculty Roster Manager**: Full CRUD management interface (`/management`) for adding and removing teaching staff, academic departments, and graduation batches.
+4. **Google Gemini AI Integration**: Provides dataset-grounded responses to natural language queries (*"List students with low attendance in ADS department"*) with automatic offline reasoning fallback.
+5. **Automated Email Alerting**: Sends personalized warning emails to students and guardians via configurable SMTP servers.
+6. **Modern Design System**: Built with Plus Jakarta Sans typography, glassmorphism, responsive grid layouts, and interactive Chart.js visualizations.
