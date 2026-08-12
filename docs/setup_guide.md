@@ -29,9 +29,9 @@ cp .env.example .env
 
 ### Step 4: Run Application
 ```bash
-python run.py
+sudo python run.py
 ```
-Open **http://localhost:5000** in your browser.  
+Open **http://<YOUR_VM_IP>** or **http://localhost** in your browser.  
 Default login: **`admin`** / **`admin`**.
 
 ---
@@ -45,11 +45,11 @@ EduSense includes an optimized multi-stage `Dockerfile` with non-root security (
 # Build Docker image
 docker build -t student-performance-prediction:latest .
 
-# Run container
+# Run container on Port 80 bound to 0.0.0.0
 docker run -d \
   --name edusense_app \
-  -p 5000:5000 \
-  -e PORT=5000 \
+  -p 80:80 \
+  -e PORT=80 \
   student-performance-prediction:latest
 ```
 
@@ -57,7 +57,7 @@ docker run -d \
 
 ## 3. Full-Stack Production Deployment (Docker Compose + MySQL)
 
-To launch the web application alongside a dedicated **MySQL 8.0** database container:
+To launch the web application alongside a dedicated **MySQL 8.0** database container bound to port 80 on all network interfaces (`0.0.0.0`):
 
 ### Launch Stack
 ```bash
@@ -75,4 +75,5 @@ docker-compose logs -f web
 docker-compose down
 ```
 
-Access at **http://localhost:5000**.
+Access at **http://<YOUR_VM_IP>** (Port 80).
+

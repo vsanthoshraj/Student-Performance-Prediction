@@ -119,24 +119,26 @@ source venv/bin/activate
 # Install dependencies
 pip install -r backend/requirements.txt
 
-# Start application
-python run.py
+# Start application (requires sudo on Linux for port 80, or set PORT env)
+sudo python run.py
 ```
-Access at: **`http://localhost:5000`** (Default Login: `admin` / `admin`).
+Access at: **`http://localhost`** or **`http://<YOUR_VM_IP>`** (Port 80) | Default Login: `admin` / `admin`.
 
 ---
 
-### 2. Multi-Container Production Stack (Docker Compose)
+### 2. Multi-Container Production Stack (Docker Compose on VM)
 
-Spin up both the **EduSense Web Application** and a persistent **MySQL 8.0 Database** container:
+Spin up both the **EduSense Web Application** and a persistent **MySQL 8.0 Database** container bound to `0.0.0.0:80`:
 
 ```bash
-# Build and launch background services
+# Build and launch background services on Port 80
 docker-compose up -d --build
 
 # Verify container health
 docker-compose ps
 ```
+Access at: **`http://<YOUR_VM_IP>`** (Port 80).
+
 
 ---
 

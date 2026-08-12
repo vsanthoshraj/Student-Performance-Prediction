@@ -6,9 +6,9 @@ services:
     image: vsanthoshraj/student-performance-prediction:latest
     container_name: edusense_app
     ports:
-      - "5000:5000"
+      - "80:80"
     environment:
-      - PORT=5000
+      - PORT=80
       - MYSQL_HOST=db
       - MYSQL_PORT=3306
       - MYSQL_USER=myuser

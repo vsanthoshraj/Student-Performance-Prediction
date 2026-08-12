@@ -27,7 +27,7 @@ FROM python:3.10-slim AS runner
 # Set environment variables
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
-    PORT=5000 \
+    PORT=80 \
     PATH="/opt/venv/bin:$PATH"
 
 # Create non-root user and group for security
@@ -50,11 +50,11 @@ RUN mkdir -p /app/backend/uploads /app/backend/data && \
 USER appuser
 
 # Expose server port
-EXPOSE 5000
+EXPOSE 80
 
 # Health check using Python standard library (no curl needed)
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:5000/login').read()"
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:80/login').read()"
 
 # Run application
 CMD ["python", "run.py"]
