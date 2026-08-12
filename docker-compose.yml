@@ -27,7 +27,8 @@ services:
       - MYSQL_PASSWORD=mypassword
       - MYSQL_DATABASE=edusense_db
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     restart: always
 
   db:
@@ -38,6 +39,15 @@ services:
       MYSQL_DATABASE: edusense_db
       MYSQL_USER: myuser
       MYSQL_PASSWORD: mypassword
+    command: >
+      --performance_schema=OFF
+      --innodb_buffer_pool_size=64M
+      --max_connections=20
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot123"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
     ports:
       - "3307:3306"
     volumes:
