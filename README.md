@@ -32,24 +32,17 @@ Excel Markbook Upload ➔ Multi-Sheet Parsing ➔ MySQL Database Storage
 Early Warning Rule Engine                     Master Data Manager                             Google Gemini AI Assistant
 (Attendance, Marks, Assignment Cut-offs)      (Staffs, Depts, Academic Years)                 (Dataset RAG & Offline Rules)
     │                                                 │                                                 │
-    ▼                                                 ▼                                                 ▼
-Interactive Analytics Dashboard               Departmental & Staff Rosters                    Automated SMTP Email Alerts
-```
-
----
-
-## 🛠️ Technology Stack
-
-| Layer | Technology & Tools |
+    �| Layer | Technology & Tools |
 |-------|-------------------|
+| **Web Server / Reverse Proxy** | **NGINX 1.25** (Reverse Proxy, SSL/TLS Termination, Gzip Compression, Request Buffering) |
 | **Typography & UI** | **Plus Jakarta Sans**, Modern Glassmorphic Design System, HSL Color Palettes, Micro-animations |
 | **Frontend Framework** | HTML5, Vanilla CSS3, JavaScript (ES6+), Chart.js 4.x, Lucide Vector Icons |
-| **Backend API** | Python 3.10+, Flask REST API framework |
+| **Backend API & WSGI** | Python 3.10+, Flask REST API framework, **Gunicorn** production WSGI server |
 | **Database** | MySQL 8.0 (PyMySQL with automatic zero-downtime SQLite fallback) |
 | **AI Reasoning Engine**| Google Gemini API (`gemini-2.5-flash`) with offline rule engine fallback |
 | **Email Dispatcher** | Python `smtplib`, `email.mime` (TLS/SSL multi-provider support) |
 | **Data Ingestion** | Pandas, OpenPyXL (Multi-sheet markbook parser) |
-| **Containerization** | Multi-stage production `Dockerfile` (Non-root `appuser`, health checks, layer caching) |
+| **Containerization** | Multi-container production stack (`nginx` + `web` + `db`) with multi-stage `Dockerfile` |
 
 ---
 
@@ -57,67 +50,63 @@ Interactive Analytics Dashboard               Departmental & Staff Rosters      
 
 ```
 Student-Performance-Prediction/
-├── run.py                          # Application entry point (PORT configurable)
-├── Dockerfile                      # Optimized multi-stage production build
-├── docker-compose.yml              # Multi-container stack (Flask + MySQL 8.0)
+├── run.py                          # Application entry point (Gunicorn / Flask)
+├── Dockerfile                      # Multi-stage production build for Flask app
+├── docker-compose.yml              # Multi-container stack (Nginx + Flask + MySQL 8.0)
 ├── .dockerignore                   # Excludes build context noise & virtual environments
-├── .env.example                    # Environment variable template
 ├── README.md                       # Main documentation guide
 │
+├── nginx/                          # Nginx Web Server Configuration
+│   ├── default.conf                # Reverse proxy config (Port 80 -> Port 5000)
+│   └── Dockerfile                  # Nginx Docker image build spec
+│
 ├── frontend/                       # Web UI Layer
-│   ├── templates/
-│   │   ├── base.html               # Main layout drawer & navigation
-│   │   ├── login.html              # Modern glassmorphic authentication screen
-│   │   ├── dashboard.html          # Dynamic KPI cards & Chart.js visualizations
-│   │   ├── students.html           # Searchable & filterable student registry
-│   │   ├── analytics.html          # Performance matrix & departmental insights
-│   │   ├── alerts.html             # SMTP email notification audit logs
-│   │   ├── management.html         # Master Data Manager (Staffs, Depts, Academic Years)
-│   │   ├── settings.html           # Threshold range sliders & API key controls
-│   │   └── upload.html             # Drag-and-drop Excel markbook importer
-│   └── static/
-│       ├── css/style.css           # Modern design system & token definitions
-│       └── js/
-│           ├── dashboard.js        # Dynamic charts, modal triggers, filters
-│           └── chatbot.js          # Interactive Gemini AI assistant drawer
+│   ├── templates/                  # Jinja2 templates (dashboard, alerts, settings, etc.)
+│   └── static/                     # CSS design system & JavaScript modules
 │
 ├── backend/                        # Core Engine & Services
 │   ├── app.py                      # Flask routes & REST endpoints
 │   ├── config.py                   # System configuration & environment paths
 │   ├── database.py                 # MySQL persistent layer with SQLite fallback
 │   ├── schema.sql                  # MySQL database DDL definitions
-│   ├── requirements.txt            # Python dependencies
-│   ├── data/                       # Official dataset & SQLite fallback database
-│   └── services/
-│       ├── excel_service.py        # College markbook parser (I1, I2, I3, RUBRICS)
-│       ├── risk_service.py         # Configurable early warning risk calculator
-│       ├── gemini_service.py       # Google Gemini LLM service with RAG prompt
-│       └── email_service.py        # Automated SMTP notification manager
+│   ├── requirements.txt            # Python dependencies (Flask, Gunicorn, PyMySQL)
+│   └── services/                   # Excel parsing, Risk evaluation, Gemini AI, Email services
 │
 └── docs/                           # Technical documentation suite
-    ├── overview.md
-    ├── tech_stack.md
-    ├── setup_guide.md
-    └── database_schema.md
 ```
 
 ---
 
 ## 🚀 Quick Start & Deployment
 
-### 1. Local Development Mode
+### 1. Multi-Container Production Stack with Nginx (Docker Compose)
+
+Spin up the entire stack—**NGINX Web Server**, **EduSense Application**, and persistent **MySQL 8.0 Database**:
 
 ```bash
 # Clone repository
 git clone https://github.com/vsanthoshraj/Student-Performance-Prediction.git
 cd Student-Performance-Prediction
 
-# Create and activate virtual environment
-python3 -m venv venv
-source venv/bin/activate
+# Build and launch background services (Nginx on Port 80, App on Port 5000, MySQL on 3306)
+docker-compose up -d --build
 
-# Install dependencies
-pip install -r backend/requirements.txt
+# Verify container status and health
+docker-compose ps
+```
+Access at: **`http://<YOUR_SERVER_IP>`** or **`http://localhost`** (Port 80).
+
+### 2. Pulling and Running Pre-Built Images from Docker Hub
+
+```bash
+# Pull web app & nginx images from Docker Hub
+docker pull vsanthoshraj/student-performance-prediction:latest
+docker pull vsanthoshraj/student-performance-prediction-nginx:latest
+
+# Run using docker-compose
+docker-compose up -d
+```
+txt
 
 # Start application (requires sudo on Linux for port 80, or set PORT env)
 sudo python run.py
