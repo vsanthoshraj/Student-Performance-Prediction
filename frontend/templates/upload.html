@@ -12,12 +12,28 @@
   </div>
 
   <form id="uploadForm" action="{{ url_for('upload') }}" method="POST" enctype="multipart/form-data">
+    <div style="background:#ffffff; padding:16px 24px; border-radius:16px; border:1px solid rgba(226, 232, 240, 0.9); margin-bottom:20px; display:inline-flex; align-items:center; gap:14px; box-shadow:0 4px 12px rgba(0,0,0,0.03);">
+      <label style="font-size:14px; font-weight:700; color:var(--text-primary); display:flex; align-items:center; gap:6px;">
+        <i data-lucide="layers" style="width:16px; height:16px; color:var(--color-accent);"></i> Select Target Semester:
+      </label>
+      <select name="sem_no" class="form-input" style="width:180px; padding:8px 14px; font-weight:600;">
+        <option value="1">Semester 1</option>
+        <option value="2">Semester 2</option>
+        <option value="3">Semester 3</option>
+        <option value="4">Semester 4</option>
+        <option value="5" selected>Semester 5 (Current)</option>
+        <option value="6">Semester 6</option>
+        <option value="7">Semester 7</option>
+        <option value="8">Semester 8</option>
+      </select>
+    </div>
+
     <div class="dropzone-container" id="dropzone">
       <div class="dropzone-icon">
         <i data-lucide="file-up" style="width:32px; height:32px;"></i>
       </div>
       
-      <h3 style="font-size:19px; font-weight:600; margin-bottom:6px;">Drop your Excel file here</h3>
+      <h3 style="font-size:19px; font-weight:600; margin-bottom:6px;">Drop your Semester Excel file here</h3>
       <p style="font-size:14px; color:var(--text-secondary); margin-bottom:20px;">or click to select file from your device</p>
       
       <input type="file" name="excel_file" id="fileInput" accept=".xlsx" style="display:none;" onchange="handleFileSelect(this)">
@@ -26,7 +42,7 @@
         Choose Excel File
       </button>
 
-      <p style="font-size:12px; color:var(--text-muted); margin-top:20px;">Supported format: <strong>.xlsx</strong></p>
+      <p style="font-size:12px; color:var(--text-muted); margin-top:20px;">Supported format: <strong>.xlsx</strong> (e.g. Document from Santhosh Raj V.xlsx)</p>
       <div id="selectedFileName" style="margin-top:14px; font-weight:600; color:var(--color-accent);"></div>
     </div>
   </form>

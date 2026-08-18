@@ -3,36 +3,37 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sign In — EduSense AI</title>
+  <title>Sign In — JACSI EduSense AI</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
   <script src="https://unpkg.com/lucide@latest"></script>
   <style>
     body {
-      background: radial-gradient(at 50% 30%, rgba(99, 102, 241, 0.12) 0%, rgba(248, 250, 252, 1) 75%);
+      background: radial-gradient(at 50% 30%, rgba(99, 102, 241, 0.14) 0%, rgba(241, 245, 249, 1) 75%);
       display: flex;
       align-items: center;
       justify-content: center;
       min-height: 100vh;
       margin: 0;
+      font-family: var(--font-family);
     }
     .login-container {
       width: 100%;
-      max-width: 440px;
+      max-width: 460px;
       padding: 24px;
     }
     .login-card {
-      background: rgba(255, 255, 255, 0.92);
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
       border-radius: var(--border-radius-xl);
-      border: 1px solid rgba(226, 232, 240, 0.8);
-      box-shadow: var(--shadow-lg);
-      padding: 48px 40px;
+      border: 1px solid rgba(226, 232, 240, 0.9);
+      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.08);
+      padding: 42px 36px;
       text-align: center;
     }
     .login-logo {
-      width: 54px;
-      height: 54px;
+      width: 56px;
+      height: 56px;
       background: var(--color-accent-gradient);
       color: white;
       border-radius: 16px;
@@ -41,29 +42,77 @@
       justify-content: center;
       font-size: 26px;
       font-weight: 800;
-      margin-bottom: 24px;
+      margin-bottom: 20px;
       box-shadow: var(--shadow-accent);
     }
     .login-title {
-      font-size: 30px;
+      font-size: 28px;
       font-weight: 800;
       letter-spacing: -0.8px;
       color: var(--text-primary);
-      margin-bottom: 6px;
+      margin-bottom: 4px;
     }
     .login-subtitle {
-      font-size: 15px;
+      font-size: 14px;
       color: var(--text-secondary);
-      margin-bottom: 32px;
+      margin-bottom: 28px;
     }
-    .demo-hint {
-      margin-top: 28px;
-      font-size: 12px;
-      color: var(--text-muted);
+    
+    /* Segmented Tab Control */
+    .role-tabs {
+      display: flex;
+      background: rgba(241, 245, 249, 0.8);
+      padding: 4px;
+      border-radius: 12px;
+      margin-bottom: 24px;
+      border: 1px solid rgba(226, 232, 240, 0.8);
+    }
+    .role-tab {
+      flex: 1;
+      padding: 10px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      border-radius: 9px;
+      cursor: pointer;
+      transition: all 0.2s ease;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 6px;
+    }
+    .role-tab.active {
+      background: #ffffff;
+      color: var(--color-accent);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+    }
+
+    .quick-logins {
+      margin-top: 24px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(226, 232, 240, 0.8);
+      text-align: left;
+    }
+    .quick-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      border-radius: 8px;
+      border: 1px solid rgba(226, 232, 240, 0.9);
+      background: #ffffff;
+      color: var(--text-primary);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .quick-btn:hover {
+      background: rgba(241, 245, 249, 0.9);
+      border-color: var(--color-accent);
+      color: var(--color-accent);
     }
   </style>
 </head>
@@ -71,8 +120,8 @@
   <div class="login-container">
     <div class="login-card">
       <div class="login-logo">✦</div>
-      <h1 class="login-title">EduSense</h1>
-      <p class="login-subtitle">Academic Intelligence & Risk Analytics Platform</p>
+      <h1 class="login-title">JACSI EduSense</h1>
+      <p class="login-subtitle">Student Performance & Academic Intelligence Platform</p>
 
       {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
@@ -84,36 +133,99 @@
         {% endif %}
       {% endwith %}
 
-      <form method="POST" action="{{ url_for('login') }}">
+      <!-- Dual Role Selection Tabs -->
+      <div class="role-tabs">
+        <button type="button" class="role-tab active" id="tabStaff" onclick="selectRole('staff')">
+          <i data-lucide="user-check" style="width:16px; height:16px;"></i> Staff Login
+        </button>
+        <button type="button" class="role-tab" id="tabStudent" onclick="selectRole('student')">
+          <i data-lucide="graduation-cap" style="width:16px; height:16px;"></i> Student Login
+        </button>
+      </div>
+
+      <form method="POST" action="{{ url_for('login') }}" id="loginForm">
+        <input type="hidden" name="role" id="roleInput" value="staff">
+
         <div class="form-group" style="text-align:left;">
-          <label class="form-label" for="email">Username</label>
+          <label class="form-label" for="username" id="usernameLabel">Staff Email / Username</label>
           <div class="input-wrapper">
             <i data-lucide="user" class="input-icon"></i>
-            <input type="text" id="email" name="email" class="form-input" placeholder="admin" value="admin" required>
+            <input type="text" id="username" name="username" class="form-input" placeholder="staff@college.edu" value="staff@college.edu" required>
           </div>
         </div>
 
-        <div class="form-group" style="text-align:left; margin-bottom:28px;">
+        <div class="form-group" style="text-align:left; margin-bottom:24px;">
           <label class="form-label" for="password">Password</label>
           <div class="input-wrapper">
             <i data-lucide="lock" class="input-icon"></i>
-            <input type="password" id="password" name="password" class="form-input" placeholder="••••••••" value="admin" required>
+            <input type="password" id="password" name="password" class="form-input" placeholder="••••••••" value="staff123" required>
           </div>
         </div>
 
-        <button type="submit" class="btn-apple btn-primary-apple" style="width:100%; padding:14px; font-size:16px;">
-          Sign In to Workspace <i data-lucide="arrow-right" style="width:18px; height:18px;"></i>
+        <button type="submit" class="btn-apple btn-primary-apple" style="width:100%; padding:14px; font-size:15px;" id="submitBtn">
+          Sign In as Staff <i data-lucide="arrow-right" style="width:18px; height:18px;"></i>
         </button>
       </form>
 
-      <div class="demo-hint">
-        <i data-lucide="sparkles" style="width:13px; height:13px; color:var(--color-accent);"></i>
-        Demonstration Mode • Default credentials pre-filled
+      <!-- Quick Demo Logins -->
+      <div class="quick-logins">
+        <p style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:10px;">
+          ⚡ Quick Demo Access:
+        </p>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button type="button" class="quick-btn" onclick="quickFill('staff@college.edu', 'staff123', 'staff')">
+            👔 Staff Account
+          </button>
+          <button type="button" class="quick-btn" onclick="quickFill('951323243001', 'student123', 'student')">
+            🎓 Student (Abinaya S)
+          </button>
+          <button type="button" class="quick-btn" onclick="quickFill('951323243002', 'student123', 'student')">
+            🎓 Student (Abishek S)
+          </button>
+        </div>
       </div>
     </div>
   </div>
+
   <script>
+    function selectRole(role) {
+      document.getElementById('roleInput').value = role;
+      const tabStaff = document.getElementById('tabStaff');
+      const tabStudent = document.getElementById('tabStudent');
+      const usernameLabel = document.getElementById('usernameLabel');
+      const usernameInput = document.getElementById('username');
+      const passwordInput = document.getElementById('password');
+      const submitBtn = document.getElementById('submitBtn');
+
+      if (role === 'staff') {
+        tabStaff.classList.add('active');
+        tabStudent.classList.remove('active');
+        usernameLabel.innerText = 'Staff Email / Username';
+        usernameInput.placeholder = 'staff@college.edu';
+        usernameInput.value = 'staff@college.edu';
+        passwordInput.value = 'staff123';
+        submitBtn.innerHTML = 'Sign In as Staff <i data-lucide="arrow-right" style="width:18px; height:18px;"></i>';
+      } else {
+        tabStudent.classList.add('active');
+        tabStaff.classList.remove('active');
+        usernameLabel.innerText = 'Register No. / Student ID';
+        usernameInput.placeholder = 'e.g. 951323243001';
+        usernameInput.value = '951323243001';
+        passwordInput.value = 'student123';
+        submitBtn.innerHTML = 'Sign In as Student <i data-lucide="arrow-right" style="width:18px; height:18px;"></i>';
+      }
+      lucide.createIcons();
+    }
+
+    function quickFill(user, pass, role) {
+      selectRole(role);
+      document.getElementById('username').value = user;
+      document.getElementById('password').value = pass;
+      document.getElementById('loginForm').submit();
+    }
+
     lucide.createIcons();
   </script>
 </body>
 </html>
+

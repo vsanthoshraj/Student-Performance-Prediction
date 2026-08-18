@@ -1,0 +1,296 @@
+{% extends "base.html" %}
+
+{% block title %}{{ student.Name }} — Student Profile & Semester Marksheet{% endblock %}
+
+{% block header_title %}Student Identity & Semester Profile{% endblock %}
+
+{% block content %}
+<div style="display:flex; flex-direction:column; gap:24px;">
+
+  <!-- Student Identity Profile Header Card -->
+  <div class="apple-card" style="padding:28px 32px; background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(248, 250, 252, 0.95)); border: 1px solid rgba(226, 232, 240, 0.9);">
+    <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:20px;">
+      
+      <div style="display:flex; align-items:center; gap:20px;">
+        <!-- Avatar Circle -->
+        <div style="width:76px; height:76px; border-radius:24px; background:var(--color-accent-gradient); color:white; font-size:28px; font-weight:800; display:flex; align-items:center; justify-content:center; box-shadow:var(--shadow-accent);">
+          {{ student.Name[:2].upper() }}
+        </div>
+
+        <div>
+          <div style="display:flex; align-items:center; gap:12px; margin-bottom:4px;">
+            <h2 style="font-size:24px; font-weight:800; color:var(--text-primary); margin:0;">
+              {{ student.Name }}
+            </h2>
+            <span class="status-badge status-{{ 'good' if student.Status == 'Good' else ('warning' if student.Status == 'Warning' else 'risk') }}">
+              {{ student.Status }}
+            </span>
+          </div>
+
+          <div style="display:flex; align-items:center; gap:16px; font-size:13px; color:var(--text-secondary); flex-wrap:wrap;">
+            <span><strong style="color:var(--text-primary);">Reg No:</strong> {{ student['Student ID'] }}</span>
+            <span>•</span>
+            <span><strong style="color:var(--text-primary);">Dept:</strong> {{ student.Department }}</span>
+            <span>•</span>
+            <span><strong style="color:var(--text-primary);">Batch:</strong> {{ student.Year }}</span>
+            <span>•</span>
+            <span><strong style="color:var(--text-primary);">Email:</strong> {{ student.Email }}</span>
+          </div>
+        </div>
+      </div>
+
+      {% if session.get('role') == 'staff' and all_students %}
+      <!-- Quick Student Switcher for Staff -->
+      <div style="display:flex; align-items:center; gap:10px;">
+        <label style="font-size:12px; font-weight:600; color:var(--text-secondary);">Select Student:</label>
+        <select class="form-input" style="padding:6px 12px; width:220px; font-size:13px;" onchange="window.location.href='/student/profile/' + this.value">
+          {% for s in all_students %}
+            <option value="{{ s['Student ID'] }}" {% if s['Student ID'] == student['Student ID'] %}selected{% endif %}>
+              {{ s['Student ID'] }} - {{ s.Name }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+      {% endif %}
+
+    </div>
+  </div>
+
+  <!-- Overall Performance Metric Cards -->
+  <div class="metrics-grid">
+    <div class="metric-card">
+      <div class="metric-header">
+        <span class="metric-title">Cumulative GPA (CGPA)</span>
+        <div class="metric-icon-wrapper icon-purple">
+          <i data-lucide="award"></i>
+        </div>
+      </div>
+      <div class="metric-value">{{ cgpa }} / 10.0</div>
+      <div class="metric-footer footer-positive">
+        Overall academic standing across 8 Semesters
+      </div>
+    </div>
+
+    <div class="metric-card">
+      <div class="metric-header">
+        <span class="metric-title">Overall Attendance</span>
+        <div class="metric-icon-wrapper icon-blue">
+          <i data-lucide="calendar-check"></i>
+        </div>
+      </div>
+      <div class="metric-value">{{ overall_attendance }}%</div>
+      <div class="metric-footer {{ 'footer-positive' if overall_attendance >= 75 else 'footer-negative' }}">
+        {{ 'Regular Attendance' if overall_attendance >= 75 else 'Shortage Warning (< 75%)' }}
+      </div>
+    </div>
+
+    <div class="metric-card">
+      <div class="metric-header">
+        <span class="metric-title">Semesters Tracked</span>
+        <div class="metric-icon-wrapper icon-green">
+          <i data-lucide="book-open"></i>
+        </div>
+      </div>
+      <div class="metric-value">8 Semesters</div>
+      <div class="metric-footer footer-positive">
+        Current Semester: Sem {{ selected_sem }}
+      </div>
+    </div>
+
+    <div class="metric-card">
+      <div class="metric-header">
+        <span class="metric-title">Academic Risk Assessment</span>
+        <div class="metric-icon-wrapper {{ 'icon-red' if student.Status == 'At Risk' else ('icon-yellow' if student.Status == 'Warning' else 'icon-green') }}">
+          <i data-lucide="shield-alert"></i>
+        </div>
+      </div>
+      <div class="metric-value" style="font-size:20px; color: {{ 'var(--color-risk-hover)' if student.Status == 'At Risk' else ('var(--color-warning-hover)' if student.Status == 'Warning' else 'var(--color-good-hover)') }};">
+        {{ student.Status }}
+      </div>
+      <div class="metric-footer" style="color:var(--text-secondary);">
+        {{ student.Recommendation if student.Recommendation else 'Student is performing adequately.' }}
+      </div>
+    </div>
+  </div>
+
+  <!-- Semester Navigation Tabs (Sem 1 to Sem 8) -->
+  <div class="apple-card" style="padding:16px 24px;">
+    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:12px;">
+      <h3 style="font-size:16px; font-weight:700; color:var(--text-primary); margin:0; display:flex; align-items:center; gap:8px;">
+        <i data-lucide="layers" style="width:18px; height:18px; color:var(--color-accent);"></i>
+        Semester Selection (Sem 1 – Sem 8)
+      </h3>
+      <button class="btn-apple btn-secondary-apple" onclick="window.print()" style="font-size:12px; padding:6px 14px;">
+        <i data-lucide="printer" style="width:14px; height:14px;"></i> Print Marksheet
+      </button>
+    </div>
+
+    <div style="display:flex; gap:8px; overflow-x:auto; padding-bottom:6px;">
+      {% for s_num in range(1, 9) %}
+        <a href="?sem={{ s_num }}" 
+           class="btn-apple {{ 'btn-primary-apple' if s_num == selected_sem else 'btn-secondary-apple' }}" 
+           style="padding:10px 18px; font-size:13px; font-weight:600; white-space:nowrap; border-radius:12px;">
+          Semester {{ s_num }}
+        </a>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Selected Semester Subject Marksheet Table -->
+  <div class="apple-card" style="padding:0; overflow:hidden;">
+    <div style="padding:20px 24px; background:rgba(248, 250, 252, 0.8); border-bottom:1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+      <div>
+        <h3 style="font-size:17px; font-weight:700; color:var(--text-primary); margin:0;">
+          Semester {{ selected_sem }} Detailed Marksheet
+        </h3>
+        <p style="font-size:12px; color:var(--text-secondary); margin:2px 0 0 0;">
+          Course Breakdown, Internal & External Marks, Grade & Attendance
+        </p>
+      </div>
+
+      {% set curr_summary = (sem_summaries | selectattr('sem_no', 'equalto', selected_sem) | list | first) %}
+      {% if curr_summary %}
+      <div style="display:flex; gap:16px; font-size:13px; font-weight:600;">
+        <span style="background:rgba(99, 102, 241, 0.1); color:var(--color-accent); padding:6px 12px; border-radius:8px;">
+          SGPA: {{ curr_summary.sgpa }}
+        </span>
+        <span style="background:rgba(16, 185, 129, 0.1); color:#059669; padding:6px 12px; border-radius:8px;">
+          Avg Marks: {{ curr_summary.avg_marks }}%
+        </span>
+        <span style="background:rgba(245, 158, 11, 0.1); color:#d97706; padding:6px 12px; border-radius:8px;">
+          Attendance: {{ curr_summary.attendance }}%
+        </span>
+      </div>
+      {% endif %}
+    </div>
+
+    <div class="table-container">
+      <table class="apple-table">
+        <thead>
+          <tr>
+            <th>Sem No</th>
+            <th>Subject Code</th>
+            <th>Subject Name</th>
+            <th>Internal (40)</th>
+            <th>External (60)</th>
+            <th>Total Marks</th>
+            <th>Grade</th>
+            <th>Attendance (%)</th>
+            <th>Credits</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if sem_marks %}
+            {% for item in sem_marks %}
+              <tr>
+                <td style="font-weight:600;">Sem {{ item.sem_no }}</td>
+                <td><code style="background:rgba(241, 245, 249, 1); padding:2px 6px; border-radius:4px; font-size:12px; color:var(--color-accent);">{{ item.subject_code }}</code></td>
+                <td style="font-weight:600; color:var(--text-primary);">{{ item.subject_name }}</td>
+                <td>{{ item.internal_marks }}</td>
+                <td>{{ item.external_marks }}</td>
+                <td style="font-weight:700; color:var(--text-primary);">{{ item.total_marks }}</td>
+                <td>
+                  <span style="display:inline-block; padding:3px 10px; border-radius:6px; font-weight:700; font-size:12px;
+                    background: {{ 'rgba(16, 185, 129, 0.15)' if item.grade in ['O', 'A+', 'A'] else ('rgba(245, 158, 11, 0.15)' if item.grade in ['B+', 'B', 'C'] else 'rgba(239, 68, 68, 0.15)') }};
+                    color: {{ '#059669' if item.grade in ['O', 'A+', 'A'] else ('#d97706' if item.grade in ['B+', 'B', 'C'] else '#dc2626') }};">
+                    {{ item.grade }}
+                  </span>
+                </td>
+                <td>
+                  <div style="display:flex; align-items:center; gap:8px;">
+                    <div style="flex:1; height:6px; background:#e2e8f0; border-radius:3px; overflow:hidden;">
+                      <div style="height:100%; width:{{ item.attendance }}%; background: {{ '#10b981' if item.attendance >= 75 else '#ef4444' }};"></div>
+                    </div>
+                    <span style="font-size:12px; font-weight:600;">{{ item.attendance }}%</span>
+                  </div>
+                </td>
+                <td>{{ item.credits }}</td>
+              </tr>
+            {% endfor %}
+          {% else %}
+            <tr>
+              <td colspan="9" style="text-align:center; padding:30px; color:var(--text-secondary);">
+                No subject marks recorded for Semester {{ selected_sem }}. Staff can upload the Excel mark sheet.
+              </td>
+            </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Semester Progression Trend Chart (Sem 1 to Sem 8) -->
+  <div class="apple-card" style="padding:24px;">
+    <h3 style="font-size:17px; font-weight:700; color:var(--text-primary); margin:0 0 16px 0; display:flex; align-items:center; gap:8px;">
+      <i data-lucide="trending-up" style="width:18px; height:18px; color:var(--color-accent);"></i>
+      Academic SGPA & Attendance Trend Across All 8 Semesters
+    </h3>
+    <div style="height:260px; position:relative;">
+      <canvas id="semTrendChart"></canvas>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const semData = {{ sem_summaries | tojson }};
+    
+    const labels = semData.map(s => 'Sem ' + s.sem_no);
+    const sgpaValues = semData.map(s => s.sgpa);
+    const attValues = semData.map(s => s.attendance);
+
+    const ctx = document.getElementById('semTrendChart').getContext('2d');
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels.length > 0 ? labels : ['Sem 1','Sem 2','Sem 3','Sem 4','Sem 5','Sem 6','Sem 7','Sem 8'],
+        datasets: [
+          {
+            label: 'SGPA (Out of 10.0)',
+            data: sgpaValues.length > 0 ? sgpaValues : [8.2, 8.4, 8.1, 8.6, 8.5, 8.8, 8.7, 9.0],
+            borderColor: '#6366f1',
+            backgroundColor: 'rgba(99, 102, 241, 0.1)',
+            tension: 0.3,
+            fill: true,
+            yAxisID: 'y'
+          },
+          {
+            label: 'Attendance %',
+            data: attValues.length > 0 ? attValues : [88, 90, 85, 92, 89, 94, 91, 95],
+            borderColor: '#10b981',
+            backgroundColor: 'rgba(16, 185, 129, 0.05)',
+            borderDash: [5, 5],
+            tension: 0.3,
+            fill: false,
+            yAxisID: 'y1'
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: {
+            type: 'linear',
+            display: true,
+            position: 'left',
+            min: 0,
+            max: 10,
+            title: { display: true, text: 'SGPA' }
+          },
+          y1: {
+            type: 'linear',
+            display: true,
+            position: 'right',
+            min: 0,
+            max: 100,
+            grid: { drawOnChartArea: false },
+            title: { display: true, text: 'Attendance (%)' }
+          }
+        }
+      }
+    });
+  });
+</script>
+{% endblock %}

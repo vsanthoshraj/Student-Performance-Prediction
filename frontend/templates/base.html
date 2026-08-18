@@ -26,27 +26,41 @@
       </div>
 
       <nav class="sidebar-nav">
-        <a href="{{ url_for('dashboard') }}" class="nav-item {% if active_page == 'dashboard' %}active{% endif %}">
-          <i data-lucide="layout-dashboard"></i> Overview
-        </a>
-        <a href="{{ url_for('students') }}" class="nav-item {% if active_page == 'students' %}active{% endif %}">
-          <i data-lucide="users"></i> Students (57)
-        </a>
-        <a href="{{ url_for('analytics') }}" class="nav-item {% if active_page == 'analytics' %}active{% endif %}">
-          <i data-lucide="bar-chart-3"></i> Analytics
-        </a>
-        <a href="{{ url_for('alerts') }}" class="nav-item {% if active_page == 'alerts' %}active{% endif %}">
-          <i data-lucide="mail-warning"></i> Email Alerts
-        </a>
-        <a href="{{ url_for('upload') }}" class="nav-item {% if active_page == 'upload' %}active{% endif %}">
-          <i data-lucide="file-up"></i> Upload Excel
-        </a>
-        <a href="{{ url_for('management') }}" class="nav-item {% if active_page == 'management' %}active{% endif %}">
-          <i data-lucide="user-cog"></i> Master Data
-        </a>
-        <a href="{{ url_for('settings') }}" class="nav-item {% if active_page == 'settings' %}active{% endif %}">
-          <i data-lucide="settings"></i> Settings
-        </a>
+        {% if session.get('role') == 'student' %}
+          <!-- Student Navigation -->
+          <a href="{{ url_for('student_profile') }}" class="nav-item {% if active_page == 'student_profile' %}active{% endif %}">
+            <i data-lucide="graduation-cap"></i> My Identity Profile
+          </a>
+          <a href="{{ url_for('student_profile') }}?sem=5" class="nav-item">
+            <i data-lucide="layers"></i> Semester Marksheets
+          </a>
+        {% else %}
+          <!-- Staff Navigation -->
+          <a href="{{ url_for('dashboard') }}" class="nav-item {% if active_page == 'dashboard' %}active{% endif %}">
+            <i data-lucide="layout-dashboard"></i> Overview
+          </a>
+          <a href="{{ url_for('student_profile') }}" class="nav-item {% if active_page == 'student_profile' %}active{% endif %}">
+            <i data-lucide="graduation-cap"></i> Student Profiles & Sem Marks
+          </a>
+          <a href="{{ url_for('students') }}" class="nav-item {% if active_page == 'students' %}active{% endif %}">
+            <i data-lucide="users"></i> Student Directory
+          </a>
+          <a href="{{ url_for('analytics') }}" class="nav-item {% if active_page == 'analytics' %}active{% endif %}">
+            <i data-lucide="bar-chart-3"></i> Risk Analytics
+          </a>
+          <a href="{{ url_for('alerts') }}" class="nav-item {% if active_page == 'alerts' %}active{% endif %}">
+            <i data-lucide="mail-warning"></i> Email Alerts
+          </a>
+          <a href="{{ url_for('upload') }}" class="nav-item {% if active_page == 'upload' %}active{% endif %}">
+            <i data-lucide="file-up"></i> Upload Semester Excel
+          </a>
+          <a href="{{ url_for('management') }}" class="nav-item {% if active_page == 'management' %}active{% endif %}">
+            <i data-lucide="user-cog"></i> Master Data
+          </a>
+          <a href="{{ url_for('settings') }}" class="nav-item {% if active_page == 'settings' %}active{% endif %}">
+            <i data-lucide="settings"></i> Settings
+          </a>
+        {% endif %}
       </nav>
 
 
@@ -78,8 +92,13 @@
         </div>
 
         <div class="user-profile-menu">
-          <span style="font-size:13px; color:var(--text-secondary); font-weight:500;">
-            G. Alisha Evangeline, AP/ADS
+          <span style="background: {{ 'rgba(99, 102, 241, 0.12)' if session.get('role') == 'staff' else 'rgba(16, 185, 129, 0.12)' }};
+                       color: {{ 'var(--color-accent)' if session.get('role') == 'staff' else '#059669' }};
+                       padding:4px 10px; border-radius:6px; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">
+            {{ 'Staff Persona' if session.get('role') == 'staff' else 'Student Persona' }}
+          </span>
+          <span style="font-size:13px; color:var(--text-primary); font-weight:600;">
+            {{ session.get('name', 'User') }}
           </span>
           <a href="{{ url_for('logout') }}" class="btn-signout">Sign Out</a>
         </div>

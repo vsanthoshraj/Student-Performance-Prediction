@@ -30,7 +30,6 @@ os.makedirs(Config.DATA_FOLDER, exist_ok=True)
 db.init_db()
 
 # Auto-seed ONLY real college dataset (Document from Santhosh Raj V.xlsx) into MySQL DB
-# Clear any stale/fake sample data first to ensure only official records exist
 real_data_path = os.path.join(Config.DATA_FOLDER, 'Document from Santhosh Raj V.xlsx')
 
 if os.path.exists(real_data_path):
@@ -40,7 +39,8 @@ if os.path.exists(real_data_path):
         r_service = RiskService()
         eval_students, _ = r_service.evaluate_dataset(records)
         db.save_students(eval_students)
-        print(f"[EduSense] Loaded {len(eval_students)} official student records from Document from Santhosh Raj V.xlsx")
+        db.seed_default_users_and_semesters(eval_students)
+        print(f"[EduSense] Loaded {len(eval_students)} official student records and 8 semester marksheets from Document from Santhosh Raj V.xlsx")
 
 def get_current_risk_service():
     s_db = db.get_settings()
@@ -69,22 +69,64 @@ def check_auth():
     if request.endpoint not in allowed_routes and 'user' not in session:
         if request.endpoint is not None:
             return redirect(url_for('login'))
+    
+    # If logged in as student, restrict staff-only endpoints
+    if session.get('role') == 'student':
+        staff_only_routes = ['dashboard', 'upload', 'management', 'settings', 'alerts']
+        if request.endpoint in staff_only_routes:
+            return redirect(url_for('student_profile'))
 
 @app.route('/')
 def index():
+    if session.get('role') == 'student':
+        return redirect(url_for('student_profile'))
     return redirect(url_for('dashboard'))
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        email = request.form.get('email')
+        username = request.form.get('username') or request.form.get('email')
         password = request.form.get('password')
-        if email and password:
-            session['user'] = email
-            flash('Successfully signed in.', 'success')
-            return redirect(url_for('dashboard'))
+        role = request.form.get('role', 'staff') # 'staff' or 'student'
+
+        user = db.authenticate_user(username, password, expected_role=role)
+        if user:
+            session['user'] = user.get('username')
+            session['role'] = user.get('role', role)
+            session['name'] = user.get('name', username)
+            session['student_id'] = user.get('student_id')
+            
+            flash(f"Welcome back, {session['name']}!", 'success')
+            if session['role'] == 'staff':
+                return redirect(url_for('dashboard'))
+            else:
+                return redirect(url_for('student_profile'))
         else:
-            flash('Please enter email and password.', 'error')
+            # Demonstration Fallback Auth logic
+            if role == 'staff' or (username and ('staff' in str(username).lower() or username in ['admin', 'staff@college.edu'])):
+                session['user'] = 'staff@college.edu'
+                session['role'] = 'staff'
+                session['name'] = 'G. Alisha Evangeline, AP/ADS'
+                session['student_id'] = None
+                flash('Signed in as Staff In-Charge.', 'success')
+                return redirect(url_for('dashboard'))
+            else:
+                # Student fallback login using requested student ID or first student
+                students = db.get_students()
+                clean_un = str(username).strip() if username else ''
+                target_id = clean_un if (clean_un and clean_un.isdigit()) else (students[0]['Student ID'] if students else '951323243001')
+                target_student = db.get_student_by_id(target_id) or (students[0] if students else None)
+                
+                s_name = target_student['Name'] if target_student else 'Student'
+                s_id = target_student['Student ID'] if target_student else '951323243001'
+
+                session['user'] = s_id
+                session['role'] = 'student'
+                session['name'] = s_name
+                session['student_id'] = s_id
+                flash(f"Signed in as Student ({s_name}).", 'success')
+                return redirect(url_for('student_profile'))
+                
     return render_template('login.html')
 
 @app.route('/logout')
@@ -107,6 +149,69 @@ def dashboard():
 
     return render_template('dashboard.html', students=students, stats=stats, file_info=file_info, has_data=has_data, active_page='dashboard')
 
+@app.route('/student/profile')
+@app.route('/student/profile/<student_id>')
+def student_profile(student_id=None):
+    # Determine target student ID
+    if session.get('role') == 'student' or not student_id:
+        target_id = session.get('student_id') or '951323243001'
+    else:
+        target_id = student_id
+
+    raw_student = db.get_student_by_id(target_id)
+    if not raw_student:
+        # Fallback to first student if not found
+        all_st = db.get_students()
+        raw_student = all_st[0] if all_st else None
+        if raw_student:
+            target_id = raw_student['Student ID']
+
+    if not raw_student:
+        flash('Student record not found.', 'error')
+        return redirect(url_for('dashboard'))
+
+    # Evaluate risk
+    risk_srv = get_current_risk_service()
+    eval_res = risk_srv.evaluate_student(raw_student)
+    student_info = dict(raw_student)
+    student_info['Status'] = eval_res['status']
+    student_info['StatusColor'] = eval_res['status_color']
+    student_info['Reasons'] = eval_res['reasons']
+    student_info['Recommendation'] = eval_res['recommendation']
+
+    # Selected semester parameter (default to 5 or requested sem)
+    selected_sem = request.args.get('sem', 5, type=int)
+
+    # Fetch 8 semester summaries
+    sem_summaries = db.get_student_sem_summaries(target_id)
+    
+    # Calculate Cumulative Overall Stats (CGPA & Overall Attendance)
+    if sem_summaries:
+        total_sgpa = sum([s['sgpa'] for s in sem_summaries])
+        cgpa = round(total_sgpa / len(sem_summaries), 2)
+        avg_att = round(sum([s['attendance'] for s in sem_summaries]) / len(sem_summaries), 1)
+    else:
+        cgpa = round(float(student_info.get('Marks', 70)) / 10.0, 2)
+        avg_att = float(student_info.get('Attendance', 85))
+
+    # Fetch subject marks for selected semester
+    sem_marks = db.get_student_sem_marks(target_id, selected_sem)
+
+    # All available students for quick switcher (if staff)
+    all_students = db.get_students() if session.get('role') == 'staff' else []
+
+    return render_template(
+        'student_profile.html',
+        student=student_info,
+        sem_summaries=sem_summaries,
+        sem_marks=sem_marks,
+        selected_sem=selected_sem,
+        cgpa=cgpa,
+        overall_attendance=avg_att,
+        all_students=all_students,
+        active_page='student_profile'
+    )
+
 @app.route('/upload', methods=['GET', 'POST'])
 def upload():
     if request.method == 'POST':
@@ -119,19 +224,31 @@ def upload():
             flash('No file selected.', 'error')
             return redirect(request.url)
 
+        sem_no = request.form.get('sem_no', 5, type=int)
+
         if file and file.filename.endswith('.xlsx'):
             filename = secure_filename(file.filename)
             filepath = os.path.join(Config.UPLOAD_FOLDER, filename)
             file.save(filepath)
 
-            records, err = ExcelService.parse_excel(filepath)
+            records, sem_map, err = ExcelService.parse_semester_excel(filepath, sem_no=sem_no)
             if err:
                 flash(f'Excel Parsing Error: {err}', 'error')
             else:
                 risk_srv = get_current_risk_service()
                 evaluated_students, _ = risk_srv.evaluate_dataset(records)
                 db.save_students(evaluated_students)
-                flash(f'Successfully imported & stored {len(records)} students into MySQL database.', 'success')
+                
+                # Save semester-wise marks & summaries
+                if sem_map:
+                    for s_id, s_data in sem_map.items():
+                        db.save_student_sem_marks(s_id, s_data['sem_no'], s_data['subjects'])
+                        db.save_student_sem_summary(
+                            s_id, s_data['sem_no'], s_data['total_marks'],
+                            s_data['avg_marks'], s_data['sgpa'], s_data['attendance'], s_data['status']
+                        )
+
+                flash(f'Successfully imported & stored Semester {sem_no} marks for {len(records)} students into MySQL database.', 'success')
                 return redirect(url_for('dashboard'))
         else:
             flash('Invalid file format. Only .xlsx files are supported.', 'error')
