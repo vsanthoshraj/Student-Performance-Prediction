@@ -320,9 +320,33 @@ def upload():
     return render_template('upload.html', students=students_list, active_page='upload')
 
 @app.route('/download-template')
-def download_template():
-    filepath = os.path.join(Config.DATA_FOLDER, 'Document from Santhosh Raj V.xlsx')
-    return send_file(filepath, as_attachment=True, download_name='Document_from_Santhosh_Raj_V.xlsx')
+@app.route('/download-template/<int:sem_no>')
+def download_template(sem_no=1):
+    batch = request.args.get('batch', '2026-2030')
+    filename = f"EduSense_Semester_{sem_no}_Template_{batch.replace('-', '_')}.xlsx"
+    filepath = os.path.join(Config.UPLOAD_FOLDER, filename)
+    ExcelService.generate_semester_excel_template(filepath, sem_no=sem_no, batch=batch)
+    return send_file(filepath, as_attachment=True, download_name=filename)
+
+@app.route('/staff/add-student', methods=['POST'])
+def staff_add_student():
+    student_id = request.form.get('student_id', '').strip()
+    name = request.form.get('name', '').strip()
+    email = request.form.get('email', '').strip()
+    department = request.form.get('department', 'AI & DS').strip()
+    year = request.form.get('year', '2026-2030').strip()
+
+    if not student_id or not name:
+        flash('Student ID and Name are required.', 'error')
+        return redirect(url_for('upload'))
+
+    if not email:
+        email = f"{student_id}@jacsi.edu.in"
+
+    db.add_single_student(student_id, name, email, department, year)
+    flash(f'Successfully added new student {name} ({student_id}) into Batch {year}. Student login created!', 'success')
+    return redirect(url_for('upload'))
+
 
 @app.route('/students')
 def students():

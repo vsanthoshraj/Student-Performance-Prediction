@@ -299,3 +299,24 @@ class ExcelService:
         df = pd.DataFrame(sample_data)
         df.to_excel(file_path, index=False)
         return file_path
+
+    @staticmethod
+    def generate_semester_excel_template(file_path, sem_no=1, batch="2026-2030"):
+        """
+        Generates a standard Excel template (.xlsx) tailored for a specific Semester (1-8) and Batch.
+        Includes official headers and curriculum sample data for staff data entry.
+        """
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+        
+        sample_students = [
+            {"Student ID": "951326243001", "Name": "Aarav Sharma", "Email": "aarav.sharma@jacsi.edu.in", "Department": "AI & DS", "Year": batch, "Attendance": 92.5, "Marks": 88.0, "Assignment": 90.0},
+            {"Student ID": "951326243002", "Name": "Bhavya Nair", "Email": "bhavya.nair@jacsi.edu.in", "Department": "AI & DS", "Year": batch, "Attendance": 86.0, "Marks": 79.5, "Assignment": 85.0},
+            {"Student ID": "951326243003", "Name": "Chandran R", "Email": "chandran.r@jacsi.edu.in", "Department": "AI & DS", "Year": batch, "Attendance": 74.0, "Marks": 62.0, "Assignment": 68.0},
+            {"Student ID": "951326243004", "Name": "Divya Prakash", "Email": "divya.p@jacsi.edu.in", "Department": "AI & DS", "Year": batch, "Attendance": 95.0, "Marks": 94.0, "Assignment": 96.0},
+            {"Student ID": "951326243005", "Name": "Eshwar V", "Email": "eshwar.v@jacsi.edu.in", "Department": "AI & DS", "Year": batch, "Attendance": 68.5, "Marks": 48.0, "Assignment": 55.0}
+        ]
+
+        df = pd.DataFrame(sample_students)
+        df.to_excel(file_path, index=False)
+        return file_path
+

@@ -535,8 +535,32 @@ class Database:
         finally:
             conn.close()
 
+    # --- Student Management & Batch Onboarding ---
+    def add_single_student(self, student_id, name, email, department, year):
+        conn = self.get_connection()
+        try:
+            if self.use_mysql:
+                with conn.cursor() as cursor:
+                    cursor.execute("""
+                        INSERT INTO students (student_id, name, email, department, year, attendance, marks, assignment, status)
+                        VALUES (%s, %s, %s, %s, %s, 85.0, 75.0, 80.0, 'Good')
+                        ON DUPLICATE KEY UPDATE name=VALUES(name), email=VALUES(email), department=VALUES(department), year=VALUES(year);
+                    """, (str(student_id), str(name), str(email), str(department), str(year)))
+            else:
+                with conn:
+                    conn.execute("""
+                        INSERT OR REPLACE INTO students (student_id, name, email, department, year, attendance, marks, assignment, status)
+                        VALUES (?, ?, ?, ?, ?, 85.0, 75.0, 80.0, 'Good');
+                    """, (str(student_id), str(name), str(email), str(department), str(year)))
+            
+            # Auto-create user login account for the new student
+            self.create_user(username=str(student_id), password=str(student_id), role='student', student_id=str(student_id), name=str(name), email=str(email))
+        finally:
+            conn.close()
+
     # --- Academic Year CRUD ---
     def get_academic_years(self):
+
         conn = self.get_connection()
         try:
             if self.use_mysql:

@@ -1,88 +1,168 @@
 {% extends "base.html" %}
 
-{% block title %}Staff Data Management — 8-Semester Mark Entry & Excel Uploads{% endblock %}
-{% block header_title %}Staff Semester Data Management{% endblock %}
+{% block title %}Staff Data Management — 8-Semester Portal & Batch Onboarding{% endblock %}
+{% block header_title %}Staff Semester & Batch Data Portal{% endblock %}
 
 {% block content %}
 <div style="display:flex; flex-direction:column; gap:28px;">
 
   <!-- Header Banner -->
-  <div class="apple-card" style="padding:28px 32px; background: linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(248, 250, 252, 1) 100%);">
+  <div class="card-apple" style="padding:28px 32px; background: linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(248, 250, 252, 1) 100%); border:1px solid var(--border-light);">
     <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px;">
       <div>
-        <h1 style="font-size:26px; font-weight:800; color:var(--text-primary); margin:0 0 6px 0;">
-          Staff Academic Portal — 8-Semester Data Entry
+        <h1 style="font-size:24px; font-weight:800; color:var(--text-primary); margin:0 0 6px 0;">
+          Staff Academic Portal — Multi-Batch & 8-Semester Data Entry
         </h1>
         <p style="font-size:14px; color:var(--text-secondary); margin:0;">
-          Upload semester-wise Excel sheets or manually enter student marks for Semesters 1 to 8.
+          Manage 8-semester marks, download official semester Excel templates, and onboard new batch students (e.g. 2026–2030).
         </p>
       </div>
-      <div style="display:flex; gap:10px;">
-        <a href="{{ url_for('download_template') }}" class="btn-apple btn-secondary-apple" style="font-size:13px; padding:10px 16px;">
-          <i data-lucide="download"></i> Download Excel Template
+      <div style="display:flex; gap:10px; align-items:center;">
+        <a href="{{ url_for('download_template', sem_no=1) }}" class="btn-apple btn-secondary-apple" style="font-size:13px; padding:10px 16px;">
+          <i data-lucide="download"></i> Download Standard Excel Template
         </a>
       </div>
     </div>
   </div>
 
-  <!-- Tab Control: Excel Uploads vs Manual Mark Entry -->
-  <div class="apple-card" style="padding:12px; background:rgba(241, 245, 249, 0.7); display:flex; gap:8px;">
-    <button type="button" class="btn-apple btn-primary-apple" id="btnHubUpload" onclick="switchSection('uploadHub')" style="flex:1; padding:12px; font-weight:700;">
-      <i data-lucide="file-up"></i> 📊 Upload 8-Semester Excel Sheets
+  <!-- Tab Controls: Excel Uploads vs Student Onboarding vs Manual Mark Entry -->
+  <div class="card-apple" style="padding:10px; background:#F8FAFC; display:flex; gap:10px; flex-wrap:wrap;">
+    <button type="button" class="btn-apple btn-primary-apple" id="btnHubUpload" onclick="switchSection('uploadHub')" style="flex:1; padding:12px; font-weight:700; min-width:220px;">
+      <i data-lucide="file-up"></i> 📊 8-Semester Excel Upload Portals
     </button>
-    <button type="button" class="btn-apple btn-secondary-apple" id="btnHubManual" onclick="switchSection('manualHub')" style="flex:1; padding:12px; font-weight:700;">
+    <button type="button" class="btn-apple btn-secondary-apple" id="btnHubStudent" onclick="switchSection('studentHub')" style="flex:1; padding:12px; font-weight:700; min-width:220px;">
+      <i data-lucide="user-plus"></i> 🎓 New Batch & Student Onboarding
+    </button>
+    <button type="button" class="btn-apple btn-secondary-apple" id="btnHubManual" onclick="switchSection('manualHub')" style="flex:1; padding:12px; font-weight:700; min-width:220px;">
       <i data-lucide="edit-3"></i> ✏️ Direct Manual Mark Entry
     </button>
   </div>
 
-  <!-- SECTION 1: 8 Separate Semester Excel Upload Cards -->
+  <!-- SECTION 1: 8 Separate Semester Excel Upload Cards with Template Downloads -->
   <div id="uploadHub" style="display:flex; flex-direction:column; gap:20px;">
-    <h3 style="font-size:18px; font-weight:700; color:var(--text-primary); margin:0; display:flex; align-items:center; gap:8px;">
-      <i data-lucide="layers" style="width:20px; height:20px; color:var(--color-accent);"></i>
-      Separate Upload Pages for Semesters 1 to 8
-    </h3>
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+      <div>
+        <h3 style="font-size:18px; font-weight:700; color:var(--text-primary); margin:0; display:flex; align-items:center; gap:8px;">
+          <i data-lucide="layers" style="width:20px; height:20px; color:var(--color-accent);"></i>
+          8 Separate Upload Portals (Semester 1 to Semester 8)
+        </h3>
+        <p style="font-size:13px; color:var(--text-secondary); margin:4px 0 0 0;">
+          Select any semester to upload Excel marks or download standard pre-formatted Excel templates.
+        </p>
+      </div>
+    </div>
 
-    <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap:18px;">
+    <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap:20px;">
       {% for s_num in range(1, 9) %}
-        <div class="apple-card" style="padding:22px; transition: transform 0.2s ease, box-shadow 0.2s ease; border: 1px solid rgba(226, 232, 240, 0.9);"
-             onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='var(--shadow-md)';"
-             onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
-          
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-            <span style="font-size:12px; font-weight:800; color:var(--color-accent); background:rgba(99, 102, 241, 0.12); padding:4px 10px; border-radius:8px; text-transform:uppercase;">
-              Semester {{ s_num }}
-            </span>
-            <span style="font-size:11px; font-weight:600; color:#059669; background:rgba(16, 185, 129, 0.12); padding:3px 8px; border-radius:6px;">
-              Ready
-            </span>
+        <div class="card-apple" style="padding:22px; display:flex; flex-direction:column; justify-content:space-between;">
+          <div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+              <span style="font-size:12px; font-weight:800; color:var(--color-accent); background:rgba(99, 102, 241, 0.12); padding:4px 10px; border-radius:8px; text-transform:uppercase;">
+                Semester {{ s_num }}
+              </span>
+              <span style="font-size:11px; font-weight:700; color:#059669; background:rgba(16, 185, 129, 0.12); padding:3px 8px; border-radius:6px;">
+                Ready
+              </span>
+            </div>
+
+            <h4 style="font-size:16px; font-weight:700; color:var(--text-primary); margin:0 0 6px 0;">
+              Sem {{ s_num }} Marksheet Upload
+            </h4>
+            <p style="font-size:12px; color:var(--text-secondary); margin:0 0 16px 0; line-height:1.4;">
+              Import internal/external subject marks for all students in Semester {{ s_num }}.
+            </p>
           </div>
 
-          <h4 style="font-size:16px; font-weight:700; color:var(--text-primary); margin:0 0 6px 0;">
-            Sem {{ s_num }} Marksheet Upload
-          </h4>
-          <p style="font-size:12px; color:var(--text-secondary); margin:0 0 16px 0;">
-            Import internal/external subject marks for all students in Semester {{ s_num }}.
-          </p>
+          <div style="display:flex; flex-direction:column; gap:8px; margin-top:12px;">
+            <!-- Upload Form -->
+            <form action="{{ url_for('upload') }}" method="POST" enctype="multipart/form-data">
+              <input type="hidden" name="sem_no" value="{{ s_num }}">
+              <input type="file" name="excel_file" id="fileSem{{ s_num }}" accept=".xlsx" style="display:none;" onchange="this.form.submit()">
+              
+              <button type="button" class="btn-apple btn-primary-apple" style="width:100%; font-size:13px; padding:10px;" onclick="document.getElementById('fileSem{{ s_num }}').click()">
+                <i data-lucide="upload-cloud" style="width:16px; height:16px;"></i> Upload Sem {{ s_num }} Excel
+              </button>
+            </form>
 
-          <form action="{{ url_for('upload') }}" method="POST" enctype="multipart/form-data">
-            <input type="hidden" name="sem_no" value="{{ s_num }}">
-            <input type="file" name="excel_file" id="fileSem{{ s_num }}" accept=".xlsx" style="display:none;" onchange="this.form.submit()">
-            
-            <button type="button" class="btn-apple btn-secondary-apple" style="width:100%; font-size:13px; padding:10px;" onclick="document.getElementById('fileSem{{ s_num }}').click()">
-              <i data-lucide="upload-cloud" style="width:16px; height:16px;"></i> Upload Sem {{ s_num }} Excel
-            </button>
-          </form>
+            <!-- Download Template Button -->
+            <a href="{{ url_for('download_template', sem_no=s_num) }}" class="btn-apple btn-secondary-apple" style="width:100%; font-size:12px; padding:8px 12px; justify-content:center;">
+              <i data-lucide="download" style="width:14px; height:14px;"></i> Download Sem {{ s_num }} Template
+            </a>
+          </div>
         </div>
       {% endfor %}
     </div>
   </div>
 
-  <!-- SECTION 2: Staff Manual Mark Entry Form -->
+  <!-- SECTION 2: Future Batch & New Student Onboarding Form -->
+  <div id="studentHub" style="display:none; flex-direction:column; gap:20px;">
+    <div class="card-apple" style="padding:28px;">
+      <h3 style="font-size:18px; font-weight:700; color:var(--text-primary); margin:0 0 8px 0; display:flex; align-items:center; gap:8px;">
+        <i data-lucide="user-plus" style="width:20px; height:20px; color:var(--color-accent);"></i>
+        Onboard New Batch Students (e.g. 2026–2030 1st Year Batch)
+      </h3>
+      <p style="font-size:13px; color:var(--text-secondary); margin:0 0 20px 0;">
+        Add new incoming students to existing or future batches while preserving historical student data. An instant student login profile will be automatically generated.
+      </p>
+
+      <form action="{{ url_for('staff_add_student') }}" method="POST">
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap:18px; margin-bottom:24px;">
+          
+          <!-- Register / Student ID -->
+          <div class="form-group" style="margin:0;">
+            <label class="form-label">Student Register / Roll ID *</label>
+            <input type="text" name="student_id" class="form-input" placeholder="e.g. 951326243001" required>
+          </div>
+
+          <!-- Full Name -->
+          <div class="form-group" style="margin:0;">
+            <label class="form-label">Student Full Name *</label>
+            <input type="text" name="name" class="form-input" placeholder="e.g. Aarav Sharma" required>
+          </div>
+
+          <!-- Email Address -->
+          <div class="form-group" style="margin:0;">
+            <label class="form-label">Email Address</label>
+            <input type="email" name="email" class="form-input" placeholder="e.g. aarav.sharma@jacsi.edu.in">
+          </div>
+
+          <!-- Department -->
+          <div class="form-group" style="margin:0;">
+            <label class="form-label">Department *</label>
+            <select name="department" class="form-input" required>
+              <option value="AI & DS">Artificial Intelligence & Data Science (AI & DS)</option>
+              <option value="CSE">Computer Science & Engineering (CSE)</option>
+              <option value="ECE">Electronics & Communication (ECE)</option>
+              <option value="IT">Information Technology (IT)</option>
+            </select>
+          </div>
+
+          <!-- Batch / Academic Year -->
+          <div class="form-group" style="margin:0;">
+            <label class="form-label">Batch / Academic Year *</label>
+            <select name="year" class="form-input" required>
+              <option value="2026-2030">2026–2030 (1st Year Batch)</option>
+              <option value="2025-2029">2025–2029 (2nd Year Batch)</option>
+              <option value="2024-2028">2024–2028 (3rd Year Batch)</option>
+              <option value="2023-2027" selected>2023–2027 (4th Year Batch)</option>
+            </select>
+          </div>
+
+        </div>
+
+        <button type="submit" class="btn-apple btn-primary-apple" style="padding:12px 28px; font-size:14px;">
+          <i data-lucide="user-check"></i> Register Student & Create Login
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- SECTION 3: Staff Manual Mark Entry Form -->
   <div id="manualHub" style="display:none; flex-direction:column; gap:20px;">
-    <div class="apple-card" style="padding:28px;">
+    <div class="card-apple" style="padding:28px;">
       <h3 style="font-size:18px; font-weight:700; color:var(--text-primary); margin:0 0 16px 0; display:flex; align-items:center; gap:8px;">
         <i data-lucide="edit-3" style="width:20px; height:20px; color:var(--color-accent);"></i>
-        Manual Student Mark Entry Form
+        Manual Student Subject Mark Entry Form
       </h3>
 
       <form action="{{ url_for('staff_enter_marks') }}" method="POST">
@@ -95,7 +175,7 @@
               <option value="">-- Choose Student --</option>
               {% for s in students %}
                 <option value="{{ s['Student ID'] }}">
-                  {{ s['Student ID'] }} - {{ s.Name }} ({{ s.Department }})
+                  {{ s['Student ID'] }} - {{ s.Name }} ({{ s.Department }} - {{ s.Year }})
                 </option>
               {% endfor %}
             </select>
@@ -161,19 +241,32 @@
 <script>
   function switchSection(sec) {
     const uploadHub = document.getElementById('uploadHub');
+    const studentHub = document.getElementById('studentHub');
     const manualHub = document.getElementById('manualHub');
     const btnHubUpload = document.getElementById('btnHubUpload');
+    const btnHubStudent = document.getElementById('btnHubStudent');
     const btnHubManual = document.getElementById('btnHubManual');
 
     if (sec === 'uploadHub') {
       uploadHub.style.display = 'flex';
+      studentHub.style.display = 'none';
       manualHub.style.display = 'none';
       btnHubUpload.className = 'btn-apple btn-primary-apple';
+      btnHubStudent.className = 'btn-apple btn-secondary-apple';
+      btnHubManual.className = 'btn-apple btn-secondary-apple';
+    } else if (sec === 'studentHub') {
+      uploadHub.style.display = 'none';
+      studentHub.style.display = 'flex';
+      manualHub.style.display = 'none';
+      btnHubUpload.className = 'btn-apple btn-secondary-apple';
+      btnHubStudent.className = 'btn-apple btn-primary-apple';
       btnHubManual.className = 'btn-apple btn-secondary-apple';
     } else {
       uploadHub.style.display = 'none';
+      studentHub.style.display = 'none';
       manualHub.style.display = 'flex';
       btnHubUpload.className = 'btn-apple btn-secondary-apple';
+      btnHubStudent.className = 'btn-apple btn-secondary-apple';
       btnHubManual.className = 'btn-apple btn-primary-apple';
     }
   }

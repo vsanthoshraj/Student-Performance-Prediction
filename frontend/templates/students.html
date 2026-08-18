@@ -13,16 +13,24 @@
 
     <!-- Filter & Search Controls -->
     <div style="display:flex; gap:12px; flex-wrap:wrap;">
-      <input type="text" id="studentSearch" placeholder="Search student name or ID..." class="form-input" style="width:240px; padding:8px 14px; font-size:13px;">
+      <input type="text" id="studentSearch" placeholder="Search student name or ID..." class="form-input" style="width:220px; padding:8px 14px; font-size:13px;">
 
-      <select id="statusFilter" class="form-input" style="width:140px; padding:8px 14px; font-size:13px;">
+      <select id="batchFilter" class="form-input" style="width:160px; padding:8px 14px; font-size:13px;">
+        <option value="all">All Batches</option>
+        <option value="2026-2030">2026–2030 (1st Year)</option>
+        <option value="2025-2029">2025–2029 (2nd Year)</option>
+        <option value="2024-2028">2024–2028 (3rd Year)</option>
+        <option value="2023-2027">2023–2027 (4th Year)</option>
+      </select>
+
+      <select id="statusFilter" class="form-input" style="width:130px; padding:8px 14px; font-size:13px;">
         <option value="all">All Statuses</option>
         <option value="good">Good</option>
         <option value="warning">Warning</option>
         <option value="at risk">At Risk</option>
       </select>
 
-      <select id="deptFilter" class="form-input" style="width:160px; padding:8px 14px; font-size:13px;">
+      <select id="deptFilter" class="form-input" style="width:150px; padding:8px 14px; font-size:13px;">
         <option value="all">All Departments</option>
         {% for dept in departments %}
           <option value="{{ dept|lower }}">{{ dept }}</option>
@@ -52,7 +60,9 @@
             data-name="{{ s.Name }}" 
             data-id="{{ s['Student ID'] }}" 
             data-status="{{ s.Status }}" 
-            data-dept="{{ s.Department }}">
+            data-dept="{{ s.Department }}"
+            data-batch="{{ s.Year }}">
+
           <td>
             <strong style="color:var(--text-primary);">{{ s.Name }}</strong>
             <span style="display:block; font-size:12px; color:var(--text-muted);">{{ s['Student ID'] }} • {{ s.Email }}</span>
@@ -97,4 +107,46 @@
     </table>
   </div>
 </div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const studentSearch = document.getElementById('studentSearch');
+    const batchFilter = document.getElementById('batchFilter');
+    const statusFilter = document.getElementById('statusFilter');
+    const deptFilter = document.getElementById('deptFilter');
+    const studentRows = document.querySelectorAll('.student-row');
+
+    function filterStudents() {
+      const query = (studentSearch.value || '').toLowerCase().trim();
+      const selectedBatch = (batchFilter.value || 'all').toLowerCase();
+      const selectedStatus = (statusFilter.value || 'all').toLowerCase();
+      const selectedDept = (deptFilter.value || 'all').toLowerCase();
+
+      studentRows.forEach(row => {
+        const name = (row.dataset.name || '').toLowerCase();
+        const id = (row.dataset.id || '').toLowerCase();
+        const status = (row.dataset.status || '').toLowerCase();
+        const dept = (row.dataset.dept || '').toLowerCase();
+        const batch = (row.dataset.batch || '').toLowerCase();
+
+        const matchesQuery = !query || name.includes(query) || id.includes(query);
+        const matchesBatch = selectedBatch === 'all' || batch.includes(selectedBatch);
+        const matchesStatus = selectedStatus === 'all' || status === selectedStatus;
+        const matchesDept = selectedDept === 'all' || dept === selectedDept;
+
+        if (matchesQuery && matchesBatch && matchesStatus && matchesDept) {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+    }
+
+    if (studentSearch) studentSearch.addEventListener('input', filterStudents);
+    if (batchFilter) batchFilter.addEventListener('change', filterStudents);
+    if (statusFilter) statusFilter.addEventListener('change', filterStudents);
+    if (deptFilter) deptFilter.addEventListener('change', filterStudents);
+  });
+</script>
 {% endblock %}
+
