@@ -137,8 +137,8 @@
   </div>
 
   <!-- Selected Semester Subject Marksheet Table -->
-  <div class="apple-card" style="padding:0; overflow:hidden;">
-    <div style="padding:20px 24px; background:rgba(248, 250, 252, 0.8); border-bottom:1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+  <div class="card-apple" style="padding:0; overflow:hidden;">
+    <div style="padding:20px 24px; background:#F8FAFC; border-bottom:1px solid var(--border-light); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
       <div>
         <h3 style="font-size:17px; font-weight:700; color:var(--text-primary); margin:0;">
           Semester {{ selected_sem }} Detailed Marksheet
@@ -150,22 +150,22 @@
 
       {% set curr_summary = (sem_summaries | selectattr('sem_no', 'equalto', selected_sem) | list | first) %}
       {% if curr_summary %}
-      <div style="display:flex; gap:16px; font-size:13px; font-weight:600;">
-        <span style="background:rgba(99, 102, 241, 0.1); color:var(--color-accent); padding:6px 12px; border-radius:8px;">
+      <div style="display:flex; gap:12px; font-size:13px; font-weight:600;">
+        <span style="background:rgba(99, 102, 241, 0.1); color:var(--color-accent); padding:6px 14px; border-radius:8px;">
           SGPA: {{ curr_summary.sgpa }}
         </span>
-        <span style="background:rgba(16, 185, 129, 0.1); color:#059669; padding:6px 12px; border-radius:8px;">
+        <span style="background:rgba(16, 185, 129, 0.1); color:#059669; padding:6px 14px; border-radius:8px;">
           Avg Marks: {{ curr_summary.avg_marks }}%
         </span>
-        <span style="background:rgba(245, 158, 11, 0.1); color:#d97706; padding:6px 12px; border-radius:8px;">
+        <span style="background:rgba(245, 158, 11, 0.1); color:#d97706; padding:6px 14px; border-radius:8px;">
           Attendance: {{ curr_summary.attendance }}%
         </span>
       </div>
       {% endif %}
     </div>
 
-    <div class="table-container">
-      <table class="apple-table">
+    <div class="table-responsive">
+      <table class="table-apple">
         <thead>
           <tr>
             <th>Sem No</th>
@@ -184,24 +184,24 @@
             {% for item in sem_marks %}
               <tr>
                 <td style="font-weight:600;">Sem {{ item.sem_no }}</td>
-                <td><code style="background:rgba(241, 245, 249, 1); padding:2px 6px; border-radius:4px; font-size:12px; color:var(--color-accent);">{{ item.subject_code }}</code></td>
+                <td><code style="background:#F1F5F9; padding:3px 8px; border-radius:6px; font-size:12px; color:var(--color-accent); font-weight:700;">{{ item.subject_code }}</code></td>
                 <td style="font-weight:600; color:var(--text-primary);">{{ item.subject_name }}</td>
                 <td>{{ item.internal_marks }}</td>
                 <td>{{ item.external_marks }}</td>
                 <td style="font-weight:700; color:var(--text-primary);">{{ item.total_marks }}</td>
                 <td>
-                  <span style="display:inline-block; padding:3px 10px; border-radius:6px; font-weight:700; font-size:12px;
+                  <span style="display:inline-block; padding:4px 12px; border-radius:8px; font-weight:700; font-size:12px;
                     background: {{ 'rgba(16, 185, 129, 0.15)' if item.grade in ['O', 'A+', 'A'] else ('rgba(245, 158, 11, 0.15)' if item.grade in ['B+', 'B', 'C'] else 'rgba(239, 68, 68, 0.15)') }};
                     color: {{ '#059669' if item.grade in ['O', 'A+', 'A'] else ('#d97706' if item.grade in ['B+', 'B', 'C'] else '#dc2626') }};">
                     {{ item.grade }}
                   </span>
                 </td>
                 <td>
-                  <div style="display:flex; align-items:center; gap:8px;">
-                    <div style="flex:1; height:6px; background:#e2e8f0; border-radius:3px; overflow:hidden;">
+                  <div style="display:flex; align-items:center; gap:10px;">
+                    <div style="flex:1; width:80px; height:8px; background:#E2E8F0; border-radius:4px; overflow:hidden;">
                       <div style="height:100%; width:{{ item.attendance }}%; background: {{ '#10b981' if item.attendance >= 75 else '#ef4444' }};"></div>
                     </div>
-                    <span style="font-size:12px; font-weight:600;">{{ item.attendance }}%</span>
+                    <span style="font-size:12px; font-weight:700;">{{ item.attendance }}%</span>
                   </div>
                 </td>
                 <td>{{ item.credits }}</td>
@@ -209,7 +209,7 @@
             {% endfor %}
           {% else %}
             <tr>
-              <td colspan="9" style="text-align:center; padding:30px; color:var(--text-secondary);">
+              <td colspan="9" style="text-align:center; padding:36px; color:var(--text-secondary);">
                 No subject marks recorded for Semester {{ selected_sem }}. Staff can upload the Excel mark sheet.
               </td>
             </tr>
