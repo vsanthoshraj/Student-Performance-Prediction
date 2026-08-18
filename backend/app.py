@@ -212,8 +212,72 @@ def student_profile(student_id=None):
         active_page='student_profile'
     )
 
+@app.route('/staff/enter-marks', methods=['POST'])
+def staff_enter_marks():
+    if session.get('role') != 'staff':
+        flash('Unauthorized access.', 'error')
+        return redirect(url_for('login'))
+        
+    student_id = request.form.get('student_id')
+    sem_no = request.form.get('sem_no', 1, type=int)
+    subject_code = request.form.get('subject_code')
+    subject_name = request.form.get('subject_name')
+    internal_marks = request.form.get('internal_marks', 0, type=float)
+    external_marks = request.form.get('external_marks', 0, type=float)
+    attendance = request.form.get('attendance', 90, type=float)
+    credits = request.form.get('credits', 3, type=int)
+
+    if not student_id or not subject_code or not subject_name:
+        flash('Please fill in Student ID, Subject Code, and Subject Name.', 'error')
+        return redirect(url_for('upload'))
+
+    total_marks = round(internal_marks + external_marks, 1)
+    
+    if total_marks >= 90:
+        grade = 'O'
+    elif total_marks >= 80:
+        grade = 'A+'
+    elif total_marks >= 70:
+        grade = 'A'
+    elif total_marks >= 60:
+        grade = 'B+'
+    elif total_marks >= 50:
+        grade = 'B'
+    elif total_marks >= 45:
+        grade = 'C'
+    else:
+        grade = 'U'
+
+    marks_item = [{
+        'subject_code': subject_code,
+        'subject_name': subject_name,
+        'internal_marks': internal_marks,
+        'external_marks': external_marks,
+        'total_marks': total_marks,
+        'grade': grade,
+        'attendance': attendance,
+        'credits': credits
+    }]
+
+    db.save_student_sem_marks(student_id, sem_no, marks_item)
+
+    # Re-calculate semester summary stats
+    existing_marks = db.get_student_sem_marks(student_id, sem_no)
+    if existing_marks:
+        tot = sum([m['total_marks'] for m in existing_marks])
+        avg = round(tot / len(existing_marks), 1)
+        sgpa = round(min(10.0, max(4.0, (avg / 10.0) + 0.5)), 2)
+        att = round(sum([m['attendance'] for m in existing_marks]) / len(existing_marks), 1)
+        status = 'Pass' if avg >= 50 else 'Reappear'
+        db.save_student_sem_summary(student_id, sem_no, tot, avg, sgpa, att, status)
+
+    flash(f'Successfully saved marks for {subject_name} ({subject_code}) in Sem {sem_no}.', 'success')
+    return redirect(url_for('upload'))
+
 @app.route('/upload', methods=['GET', 'POST'])
 def upload():
+    students_list = db.get_students()
+    
     if request.method == 'POST':
         if 'excel_file' not in request.files:
             flash('No file selected.', 'error')
@@ -248,12 +312,12 @@ def upload():
                             s_data['avg_marks'], s_data['sgpa'], s_data['attendance'], s_data['status']
                         )
 
-                flash(f'Successfully imported & stored Semester {sem_no} marks for {len(records)} students into MySQL database.', 'success')
-                return redirect(url_for('dashboard'))
+                flash(f'Successfully uploaded Semester {sem_no} Excel sheet & stored marks for {len(records)} students into MySQL database.', 'success')
+                return redirect(url_for('upload'))
         else:
             flash('Invalid file format. Only .xlsx files are supported.', 'error')
 
-    return render_template('upload.html', active_page='upload')
+    return render_template('upload.html', students=students_list, active_page='upload')
 
 @app.route('/download-template')
 def download_template():
